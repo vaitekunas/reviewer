@@ -1,0 +1,12 @@
+# Environment and output
+.env/
+out/
+
+
+# python files
+*.pyc
+__pycache__
+
+# scratch notebooks
+notebooks/__scratch.ipynb
+.ipynb_checkpoints/
