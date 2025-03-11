@@ -1,16 +1,8 @@
 from abc import abstractmethod
 
-from .iconfig import Config
-from .iserializable import Serializable
+from .iconfig import Configurable
+from .iidentifiable import Identifiable
 
 
-class Method(Serializable):
-
-    @abstractmethod
-    def get_config(self) -> Config:
-        raise NotImplementedError("abstract method")
-
-    def configure(config: Config) -> None:
-        raise NotImplementedError("abstract method")
-
-
+class Method(Identifiable, Configurable):
+    ...    

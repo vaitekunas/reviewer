@@ -12,3 +12,8 @@ class Predictor(ABC):
     @abstractmethod
     def predict(self, data: Dataset) -> Dataset:
         raise NotImplementedError("abstract method")
+
+    @property
+    @abstractmethod
+    def is_trained(self) -> bool:
+        raise NotImplementedError("abstract method")

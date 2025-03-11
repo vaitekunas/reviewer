@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Any
 
 
-class Serializable(ABC):
+class Logger(ABC):
 
     @abstractmethod
-    def serialize(self) -> dict[str, Any]:
+    def log(self, msg: str) -> None:
         raise NotImplementedError("abstract method")
