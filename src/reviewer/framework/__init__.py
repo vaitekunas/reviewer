@@ -1,4 +1,4 @@
-from .dataset import Dataset 
-from .figure import Figure
+from .dataset import *
+from .figure import *
 from .workflow import *
 from .analysis import *

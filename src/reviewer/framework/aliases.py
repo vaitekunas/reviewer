@@ -1,16 +1,27 @@
 __all__ = ["WorkflowID", "MethodID",
-           "Result", "WorkFlowResults", "AnalysisResults"]
+           "Result", "WorkFlowResults", "AnalysisResults",
+           "DatasetField", "AnalysisField", "AnalysisFieldMappings"]
 
-from typing import TypeAlias
-
-from .interfaces import Metric
-from .dataset import Dataset
-from .figure import Figure
+from dataclasses import dataclass
+from typing import Any, Type, TypeAlias
 
 WorkflowID:      TypeAlias = str
 MethodID:        TypeAlias = str
-Result:          TypeAlias = Dataset | Figure | Metric | float | int
-WorkFlowResults: TypeAlias = tuple[Dataset, dict[MethodID, list[Result]]]
-AnalysisResults: TypeAlias = dict[WorkflowID, list[WorkFlowResults]]
+Result:          TypeAlias = Any
+WorkFlowResults: TypeAlias = dict[MethodID, list[Result]]
+AnalysisResults: TypeAlias = dict[WorkflowID, WorkFlowResults]
+DatasetField:    TypeAlias = str
+AnalysisField:   TypeAlias = str
 
+@dataclass 
+class FieldSchema:
+    dtype: Type[Any]
+    description: str | None = None
 
+@dataclass
+class AnalysisFields:
+    required:  dict[AnalysisField, FieldSchema]
+    created:   dict[AnalysisField, FieldSchema]
+    available: dict[AnalysisField, FieldSchema]
+
+AnalysisFieldMappings: TypeAlias = dict[AnalysisField, DatasetField]

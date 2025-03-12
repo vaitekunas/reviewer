@@ -1,7 +1,9 @@
+__all__ = ["ILogger"]
+
 from abc import ABC, abstractmethod
 
 
-class Logger(ABC):
+class ILogger(ABC):
 
     @abstractmethod
     def log(self, msg: str) -> None:

@@ -1,10 +1,14 @@
+__all__ = ["Figure"]
+
 from dataclasses import dataclass
-import matplotlib.pyplot as plt
+from matplotlib import figure
 from typing import Any
 
+from .interface import IFigure
+
 @dataclass 
-class Figure:
+class Figure(IFigure):
     raw_data: Any
     title:    str
-    figure:   plt.Figure
+    figure:   figure.Figure
 
