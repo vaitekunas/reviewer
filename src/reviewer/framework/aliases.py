@@ -16,6 +16,7 @@ AnalysisField:   TypeAlias = str
 @dataclass 
 class FieldSchema:
     dtype: Type[Any]
+    prefix: bool = False
     description: str | None = None
 
 @dataclass

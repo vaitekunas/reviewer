@@ -14,3 +14,4 @@ except:
     nltk.download("punkt_tab", download_dir = os.getenv("NLTK_CORPORA_PATH"))
 
 from .preprocessor import *
+from .embedder import *
