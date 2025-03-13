@@ -13,12 +13,10 @@ class Configurable(ABC, Generic[T]):
     def get_default_config(self) -> T:
         raise NotImplementedError("abstract method")
 
-    @abstractmethod
     def get_config(self) -> T:
-        raise NotImplementedError("abstract method")
+        return self._config
 
-    @abstractmethod
     def configure(self, config: T) -> None:
-        raise NotImplementedError("abstract method")
+        self._config = config
 
 

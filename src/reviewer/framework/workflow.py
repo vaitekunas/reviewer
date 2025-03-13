@@ -117,7 +117,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
 
         # Drop unnecessary columns
         if (drop_cols := self._config.post_drop_columns):
-            data = data.drop_columns(drop_cols)
+            data = data.drop_fields(drop_cols)
 
         return data, results
 
@@ -143,7 +143,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
                 if field in required_fields:
                     raise Exception(f"The created field '{field}' is already required")
 
-                required_fields[field] = field_type
+                created_fields[field] = field_type
 
         # Required original fields 
         required_fields = {k: v for k, v in required_fields.items() if k not in created_fields}

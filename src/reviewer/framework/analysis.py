@@ -62,7 +62,7 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
 
         return self
 
-    def run(self, data: IDataset, mapping: AnalysisFieldMappings) -> AnalysisResults:
+    def run(self, data: IDataset, mapping: AnalysisFieldMappings) -> tuple[IDataset, AnalysisResults]:
         """Runs an analysis
 
         Args:
@@ -80,10 +80,10 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
             if rfield not in mapping:
                 raise Exception(f"Mapping for field '{rfield}' missing")
 
-            if not data.verify_schema(rfield, schema.dtype):
+            if not data.verify_schema(mapping[rfield], schema.dtype):
                 raise Exception(f"Schema for field '{rfield}' is wrong")
 
-            data.map_column(mapping[rfield], rfield)
+            data.map_field(mapping[rfield], rfield)
 
         # Run analysis
         results: AnalysisResults = {}
@@ -95,7 +95,7 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
 
             results[workflow.id] = result
 
-        return results
+        return data, results
 
     def get_fields(self) -> AnalysisFields:
 

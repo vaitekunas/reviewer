@@ -1,6 +1,7 @@
 # Environment and output
 .env/
 out/
+data/
 
 
 # python files
