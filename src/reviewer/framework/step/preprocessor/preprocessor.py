@@ -27,21 +27,20 @@ class PreprocessorConfig(IConfig):
     do_remove_punctuation: bool = False
 
     @override
-    def get_config_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
 class Preprocessor(IPreprocessor[PreprocessorConfig]):
     
     def __init__(self, 
-                 config: PreprocessorConfig | None = None,
-                 stopwords: set[str]        | None = None) -> None:
+                 config:    PreprocessorConfig | None = None) -> None:
 
         super().__init__(config)
 
         self._name      = "Preprocessor"
         self._config    = config or self.get_default_config()
-        self._stopwords = stopwords or set(nltk_stopwords.words(self._config.language))
+        self._stopwords = set(nltk_stopwords.words(self._config.language))
 
     # Identifiable
     @property

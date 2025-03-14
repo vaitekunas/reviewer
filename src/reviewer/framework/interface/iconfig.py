@@ -7,7 +7,7 @@ from typing import Any
 class IConfig(ABC):
 
     @abstractmethod
-    def get_config_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         raise NotImplementedError("abstract method")
 
     def update(self, values: dict[str, Any]) -> None:

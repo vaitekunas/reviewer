@@ -12,6 +12,15 @@ T = TypeVar('T', bound=IConfig)
 class IEmbedder(IMethod[T]):
 
     @abstractmethod
+    def train(self, data: IDataset) -> None:
+        raise NotImplementedError("abstract method")
+
+    @abstractmethod
     def embed(self, data: IDataset) -> IDataset:
+        raise NotImplementedError("abstract method")
+
+    @property
+    @abstractmethod
+    def is_trained(self) -> bool:
         raise NotImplementedError("abstract method")
 

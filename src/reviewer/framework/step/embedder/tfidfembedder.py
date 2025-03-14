@@ -1,6 +1,5 @@
 __all__ = ["TfIdfEmbedderConfig", "TfIdfEmbedder"]
 
-
 import numpy as np
 from dataclasses import asdict, dataclass
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -23,22 +22,23 @@ class TfIdfEmbedderConfig(IConfig):
     max_svd_components: int  = 128
 
     @override
-    def get_config_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
 class TfIdfEmbedder(IEmbedder[TfIdfEmbedderConfig]):
 
-    def __init__(self, config: TfIdfEmbedderConfig | None = None) -> None:
+    def __init__(self, 
+                 config:  TfIdfEmbedderConfig | None = None) -> None:
+
         super().__init__(config)
 
-        self._name   = "Embedder"
+        self._name   = "TF-IDF-Embedder"
         self._config = config or self.get_default_config()
         self._is_trained = False
 
         self._tfidf = TfidfVectorizer(max_features = self._config.max_features)
         self._svd   = TruncatedSVD(n_components=self._config.max_svd_components)
-
 
     # Identifiable
     @property
@@ -67,8 +67,7 @@ class TfIdfEmbedder(IEmbedder[TfIdfEmbedderConfig]):
 
     # Embedder
     @override
-    def embed(self, data: IDataset) -> IDataset:
-        data = data.copy()
+    def train(self, data: IDataset) -> None:
 
         texts = data.get_field_values(self._config.input_field)
 
@@ -76,18 +75,24 @@ class TfIdfEmbedder(IEmbedder[TfIdfEmbedderConfig]):
             X_tfidf = self._tfidf.fit_transform(texts)
 
             if self._config.use_svd:
-                X_transform = self._svd.fit_transform(X_tfidf)
-            else:
-                X_transform = X_tfidf
+                self._svd.fit(X_tfidf)
 
-            self._trained = True
+        self._is_trained = True
+
+    @override
+    def embed(self, data: IDataset) -> IDataset:
+        assert self._is_trained, "Embedder has not been trained yet"
+
+        data = data.copy()
+
+        texts = data.get_field_values(self._config.input_field)
+
+        X_tfidf = self._tfidf.transform(texts)
+
+        if self._config.use_svd:
+            X_transform = self._svd.transform(X_tfidf)
         else:
-            X_tfidf = self._tfidf.transform(texts)
-
-            if self._config.use_svd:
-                X_transform = self._svd.transform(X_tfidf)
-            else:
-                X_transform = X_tfidf
+            X_transform = X_tfidf
 
         assert isinstance(X_transform, np.ndarray), "Unexpected data type"
 
@@ -96,3 +101,7 @@ class TfIdfEmbedder(IEmbedder[TfIdfEmbedderConfig]):
 
         return data
 
+    @property
+    @override
+    def is_trained(self) -> bool:
+        return self._is_trained

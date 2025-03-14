@@ -4,10 +4,11 @@ from dataclasses import asdict, dataclass
 import pickle
 from typing import Any
 
-from .interface import IConfig, IDataset, ILogger
+from .interface import IConfig, IDataset, ILogger, IRuntime
 from .trait import Identifiable, Configurable
 from .workflow import Workflow
-from .aliases import AnalysisResults, FieldSchema, AnalysisFields, AnalysisFieldMappings
+from .aliases import ResultType, ResultName, AnalysisResults, FieldSchema, AnalysisFields, AnalysisFieldMappings, WorkflowID
+from .aliases import AnalysisSchema
 
 
 @dataclass
@@ -22,20 +23,22 @@ class AnalysisConfig(IConfig):
     name: str
     
 
-    def get_config_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
 class Analysis(Identifiable, Configurable[AnalysisConfig]):
 
     def __init__(self, 
-                 config: AnalysisConfig | None = None,
-                 logger: ILogger        | None = None) -> None:
+                 runtime: IRuntime,
+                 config:  AnalysisConfig | None = None,
+                 logger:  ILogger        | None = None) -> None:
 
         super().__init__()
 
-        self._config = config or self.get_default_config()
+        self._runtime = runtime
         self._logger = logger
+        self._config = config or self.get_default_config()
         self._workflows: list[Workflow] = []
 
     def __repr__(self) -> str:
@@ -123,8 +126,45 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
 
         return AnalysisFields(required = required, created = created, available = available)
 
+    def get_results(self) -> dict[WorkflowID, dict[ResultName, ResultType]]:
+        """Returns the name: type dictionaries of reults for each workflow
+
+        Returns:
+            
+        """
+        results = {}
+
+        for w in self._workflows:
+            results[w.id] = w.get_results()
+
+        return results
+
+    def to_schema(self) -> AnalysisSchema:
+        adict = AnalysisSchema(id        = self.id,
+                               config    = self._config.to_dict(),
+                               workflows = [])
+
+        for w in self._workflows:
+            adict.workflows.append(w.to_schema())
+
+        return adict
+
     def serialize(self) -> bytes:
         return pickle.dumps(self)
+
+    @staticmethod
+    def from_schema(runtime: IRuntime,
+                    analysis_dict: AnalysisSchema) -> 'Analysis':
+
+        try:
+            analysis = Analysis(runtime = runtime,
+                                config = AnalysisConfig(**analysis_dict.config))
+
+            analysis._id = analysis_dict.id
+        except:
+            raise Exception("Could not initialize Analysis")
+
+        return analysis
 
     @staticmethod
     def deserialize(serialized: bytes) -> 'Analysis':

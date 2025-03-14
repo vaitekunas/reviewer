@@ -4,11 +4,11 @@ import importlib
 from dataclasses import asdict, dataclass
 from typing import Any, override
 
-
-from .interface import IDataset, IMethod, IConfig, ILogger
-from .interface import IPreprocessor, IEmbedder, IPredictor, IEvaluator, IVisualizer
+from .interface import IDataset, IMethod, IConfig, ILogger, IRuntime
+from .interface import IPreprocessor, IEmbedder, IAnalyser, IPredictor, IEvaluator, IVisualizer, IResultCreator
 from .trait import Identifiable, Configurable
-from .aliases import WorkFlowResults, FieldSchema, AnalysisField, AnalysisFields
+from .aliases import NamedResults, WorkFlowResults, FieldSchema, AnalysisField, AnalysisFields, Result, ResultType, ResultName
+from .aliases import StepSchema, WorkflowSchema
 
 
 @dataclass
@@ -27,7 +27,12 @@ class WorkflowConfig(IConfig):
     sql_filter:        str       | None = None
     post_drop_columns: list[str] | None = None
 
-    def get_config_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
+        """
+
+        Returns:
+            
+        """
         return asdict(self)
 
 class Workflow(Identifiable, Configurable[WorkflowConfig]):
@@ -36,13 +41,15 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
     """
 
     def __init__(self, 
-                 config: WorkflowConfig | None = None,
-                 logger: ILogger | None = None) -> None:
+                 runtime: IRuntime,
+                 config:  WorkflowConfig | None = None,
+                 logger:  ILogger | None = None) -> None:
     
         super().__init__()
 
-        self._config = config or self.get_default_config()
-        self._logger = logger
+        self._runtime = runtime
+        self._logger  = logger
+        self._config  = config or self.get_default_config()
         self._steps: list[IMethod[Any]] = []
 
     def __repr__(self) -> str:
@@ -76,6 +83,10 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
         
         self._steps.append(method)
 
+        # Validate step
+        _ = self.get_fields()
+        _ = self.get_results()
+
         return self
 
     def run(self, data: IDataset) -> tuple[IDataset, WorkFlowResults]:
@@ -90,7 +101,13 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
         if (filter := self._config.sql_filter):
             data = data.apply_filter(filter)
 
-        results: WorkFlowResults = {}
+        results:       WorkFlowResults = {}
+        named_results: NamedResults = {}
+
+        def organize_results(step_results: list[Result]) -> None:
+            results[mid] += step_results
+            named_results.update({r.result_name: r for r in step_results})
+
         for step in self._steps:
             if (logger := self._logger):
                 logger.log(f"Running step '{step.name}'")
@@ -101,7 +118,16 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
                 data = step.preprocess(data)
 
             if isinstance(step, IEmbedder):
+                if not step.is_trained:
+                    step.train(data)
+
                 data = step.embed(data)
+
+            if isinstance(step, IAnalyser):
+                step_results = step.analyse(data        = data, 
+                                            results     = named_results,
+                                            new_dataset = self._runtime.new_dataset)
+                organize_results(step_results)
 
             if isinstance(step, IPredictor):
                 if not step.is_trained:
@@ -110,10 +136,12 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
                 data = step.predict(data)
 
             if isinstance(step, IEvaluator):
-                results[mid].append(step.evaluate(data))
+                step_results = step.evaluate(data, named_results)
+                organize_results(step_results)
 
             if isinstance(step, IVisualizer):
-                results[mid].append(step.visualize(data))
+                step_results = step.visualize(data, named_results)
+                organize_results(step_results)
 
         # Drop unnecessary columns
         if (drop_cols := self._config.post_drop_columns):
@@ -153,41 +181,70 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
         if self._config.post_drop_columns:
             available_fields = {k: v for k, v in available_fields.items() if k not in self._config.post_drop_columns}
 
-        return AnalysisFields(required   = required_fields, 
+        return AnalysisFields(required  = required_fields, 
                               created   = created_fields, 
                               available = available_fields)
 
-    def as_dict(self) -> dict[str, Any]:
-
-        cfg: dict[str, Any] = {"workflow": self._config.get_config_dict(),
-                               "steps": []}
+    def get_results(self) -> dict[ResultName, ResultType]:
+        results = {}
 
         for step in self._steps:
-            scfg = step.get_config().get_config_dict()
-            cfg["steps"].append({"module": step.__module__,
-                                 "class":  step.__class__.__name__,
-                                 "config": scfg})
+            if not isinstance(step, IResultCreator):
+                continue
 
-        return cfg
+            # Validate required results
+            for name, rtype in step.get_required_results().items():
+                if name not in results:
+                    raise Exception(f"Required result '{name}' not available")
+
+                if rtype != results[name]:
+                    raise Exception(f"Unexpected result type for '{name}'. Expecting '{rtype}', got '{results[name]}'")
+
+            # Validate created results
+            for name, rtype in step.get_created_results().items():
+                if name in results:
+                    raise Exception(f"Another step creates a result named '{name}'")
+
+                results[name] = rtype
+
+        return results
+
+    def to_schema(self) -> WorkflowSchema:
+
+        wdict = WorkflowSchema(id     = self.id,
+                               config = self._config.to_dict(),
+                               steps  = [])
+
+        for step in self._steps:
+            sdict = step.get_config().to_dict()
+
+            wdict.steps.append(StepSchema(id        = step.id,
+                                          module    = step.__module__,
+                                          classname = step.__class__.__name__,
+                                          config    = sdict))
+        return wdict
 
     @staticmethod
-    def from_dict(cfg: dict[str, Any]) -> 'Workflow':
+    def from_schema(runtime: IRuntime,
+                    workflow_dict: WorkflowSchema) -> 'Workflow':
 
         try:
-            config   = WorkflowConfig(**cfg["workflow"])
-            workflow = Workflow(config)
+            config       = WorkflowConfig(**workflow_dict.config)
+            workflow     = Workflow(runtime, config)
+            workflow._id = workflow_dict.id
 
-            for scfg in cfg["steps"]:
+            for sdict in workflow_dict.steps:
 
                 # Initialize step with default config
-                step_module = importlib.import_module(scfg["module"])
-                step_class = getattr(step_module, scfg["class"])
+                step_module = importlib.import_module(sdict.module)
+                step_class = getattr(step_module, sdict.classname)
                 step: IMethod[Any] = step_class()
 
                 # Reconfigure step
                 step_config = step.get_default_config()
-                step_config.update(values = scfg["config"])
+                step_config.update(values = sdict.config)
                 step.configure(step_config)
+                step._id = sdict.id
 
                 # Add to workflow
                 workflow.add(step)

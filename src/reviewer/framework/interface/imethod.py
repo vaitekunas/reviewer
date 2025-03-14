@@ -12,7 +12,7 @@ T = TypeVar('T', bound=IConfig)
 class IMethod(Identifiable, Configurable[T]):
 
     @abstractmethod
-    def __init__(self, config: T | None = None) -> None:
+    def __init__(self, config:  T | None = None) -> None:
         super().__init__()
 
     @abstractmethod

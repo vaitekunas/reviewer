@@ -138,6 +138,12 @@ class Dataset(IDataset):
         return Dataset(self._df.copy())
 
     @staticmethod
+    def new(fields: dict[str, list[Any]]) -> 'Dataset':
+        df = DataFrame(fields)
+
+        return Dataset(df)
+
+    @staticmethod
     def from_path(path: str, sep: str = ";", dec: str = ",") -> 'Dataset':
         df: DataFrame = pd.read_csv(path, sep=sep, decimal=dec)
 
