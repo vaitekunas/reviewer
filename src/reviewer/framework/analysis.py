@@ -83,8 +83,12 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
             if rfield not in mapping:
                 raise Exception(f"Mapping for field '{rfield}' missing")
 
-            if not data.verify_schema(mapping[rfield], schema.dtype):
-                raise Exception(f"Schema for field '{rfield}' is wrong")
+            rfield_mapped = mapping[rfield]
+            fields = [mapping[rfield]] if not schema.prefix else [x for x in data.fields.keys() if x.startswith(rfield_mapped)]
+
+            for field in fields:
+                if not data.verify_schema(field, schema.dtype):
+                    raise Exception(f"Schema for field '{field}' is wrong")
 
             data.map_field(mapping[rfield], rfield)
 
