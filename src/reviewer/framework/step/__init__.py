@@ -15,3 +15,5 @@ except:
 
 from .preprocessor import *
 from .embedder import *
+from .descriptive import *
+from .temporal import *

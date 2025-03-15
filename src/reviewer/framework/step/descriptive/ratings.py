@@ -4,7 +4,6 @@ import numpy as np
 from collections import Counter
 from dataclasses import asdict, dataclass
 from typing import Callable, Any, override
-from unicodedata import name
 
 from ...interface import IConfig, IDataset, IAnalyser
 from ...aliases import AnalysisField, FieldSchema, ResultType, Result, NamedResults
@@ -33,7 +32,7 @@ class RatingAnalyser(IAnalyser[RatingAnalyserConfig]):
 
         super().__init__(config)
 
-        self._name   = "NgramAnalyser"
+        self._name   = "RatingAnalyser"
         self._config = config or self.get_default_config()
 
     # Identifiable
