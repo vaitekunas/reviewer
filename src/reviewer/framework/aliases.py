@@ -7,6 +7,8 @@ from enum import Enum
 from typing import Any, Type, TypeAlias
 from dataclasses import asdict, dataclass
 
+from pandas.core.frame import dataclasses_to_dicts
+
 WorkflowID:      TypeAlias = str
 MethodID:        TypeAlias = str
 DatasetField:    TypeAlias = str
@@ -27,12 +29,13 @@ class AnalysisFields:
 AnalysisFieldMappings: TypeAlias = dict[AnalysisField, DatasetField]
 
 class ResultType(Enum):
-    DATASET  = "dataset"
-    FIGURE   = "figure"
-    PERCENT  = "percent"
-    FLOAT    = "float"
-    INTEGER  = "integer"
-    STRING   = "string"
+    DATASET      = "dataset"
+    DATASET_DICT = "dataset_dict"
+    FIGURE       = "figure"
+    PERCENT      = "percent"
+    FLOAT        = "float"
+    INTEGER      = "integer"
+    STRING       = "string"
 
 @dataclass
 class Result:

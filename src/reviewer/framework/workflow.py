@@ -136,7 +136,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
                 data = step.predict(data)
 
             if isinstance(step, IEvaluator):
-                step_results = step.evaluate(data, named_results)
+                step_results = step.evaluate(data, new_dataset = self._runtime.new_dataset)
                 organize_results(step_results)
 
             if isinstance(step, IVisualizer):
@@ -175,6 +175,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
 
         # Required original fields 
         required_fields = {k: v for k, v in required_fields.items() if k not in created_fields}
+        required_fields = {k: v for k, v in required_fields.items() if not v.prefix or not any([x.startswith(k) for x in created_fields.keys()])}
 
         # Available post-run fields
         available_fields = {**required_fields, **created_fields}

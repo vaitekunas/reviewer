@@ -1,7 +1,7 @@
 __all__ = ["IEvaluator"]
 
 from abc import abstractmethod
-from typing import TypeVar
+from typing import TypeVar, Callable, Any
 
 from .imethod import IMethod
 from .idataset import IDataset
@@ -15,5 +15,7 @@ T = TypeVar('T', bound=IConfig)
 class IEvaluator(IMethod[T], IResultCreator):
 
     @abstractmethod
-    def evaluate(self, data: IDataset, results: dict[str, Result]) -> list[Result]:
+    def evaluate(self, 
+                 data: IDataset, 
+                 new_dataset: Callable[[dict[str, list[Any]]], IDataset]) -> list[Result]:
         raise NotImplementedError("abstract method")
