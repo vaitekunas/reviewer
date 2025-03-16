@@ -33,7 +33,7 @@ class SVM(BinaryClassifier):
     # Predictor
     @override
     def train(self, data: IDataset) -> None:
-        target, regressors = self._get_regressors(data)
+        target, regressors = self._get_regressors(data.train_data)
 
         y = np.asarray(target)
         X = np.asarray(regressors).T

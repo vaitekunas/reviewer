@@ -18,3 +18,4 @@ from .embedder import *
 from .descriptive import *
 from .temporal import *
 from .binary import *
+from .collab_filter import *
