@@ -2,13 +2,15 @@ __all__ = ["WorkflowConfig", "Workflow"]
 
 import importlib
 from dataclasses import asdict, dataclass
-from typing import Any, override
+from typing import Any, override, get_args
 
-from .interface import IDataset, IMethod, IConfig, ILogger, IRuntime
+from .interface import IDataset, IMethod, IConfig, ILogger 
 from .interface import IPreprocessor, IEmbedder, IAnalyser, IPredictor, IEvaluator, IVisualizer, IResultCreator
 from .trait import Identifiable, Configurable
 from .aliases import NamedResults, WorkFlowResults, FieldSchema, AnalysisField, AnalysisFields, Result, ResultType, ResultName
 from .aliases import StepSchema, WorkflowSchema
+
+from .runtime import Runtime
 
 
 @dataclass
@@ -41,14 +43,11 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
     """
 
     def __init__(self, 
-                 runtime: IRuntime,
                  config:  WorkflowConfig | None = None,
-                 logger:  ILogger | None = None) -> None:
+                 ) -> None:
     
         super().__init__()
 
-        self._runtime = runtime
-        self._logger  = logger
         self._config  = config or self.get_default_config()
         self._steps: list[IMethod[Any]] = []
 
@@ -89,7 +88,10 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
 
         return self
 
-    def run(self, data: IDataset) -> tuple[IDataset, WorkFlowResults]:
+    def run(self, 
+            runtime: Runtime, 
+            data:    IDataset,
+            logger:  ILogger | None = None) -> tuple[IDataset, WorkFlowResults]:
         """
         Runs through all steps in the workflow and applies them
         on the dataset. A step is allowed to have several roles
@@ -109,7 +111,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
             named_results.update({r.result_name: r for r in step_results})
 
         for step in self._steps:
-            if (logger := self._logger):
+            if logger:
                 logger.log(f"Running step '{step.name}'")
 
             results[mid := step.id] = []
@@ -126,7 +128,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
             if isinstance(step, IAnalyser):
                 step_results = step.analyse(data        = data, 
                                             results     = named_results,
-                                            new_dataset = self._runtime.new_dataset)
+                                            new_dataset = runtime.new_dataset)
                 organize_results(step_results)
 
             if isinstance(step, IPredictor):
@@ -136,11 +138,11 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
                 data = step.predict(data)
 
             if isinstance(step, IEvaluator):
-                step_results = step.evaluate(data, new_dataset = self._runtime.new_dataset)
+                step_results = step.evaluate(data, new_dataset = runtime.new_dataset)
                 organize_results(step_results)
 
             if isinstance(step, IVisualizer):
-                step_results = step.visualize(data, named_results)
+                step_results = step.visualize(data, named_results, runtime.palette())
                 organize_results(step_results)
 
         # Drop unnecessary columns
@@ -158,8 +160,13 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
 
             # Required fields
             for field, field_type in step.get_required_fields().items():
-                if field in required_fields and field_type.dtype != (old := required_fields[field].dtype):
-                    raise Exception(f"Incompatible field requirement for '{field}': a previous step requires '{old}', while another requires '{field_type}'")
+                if field in required_fields and field_type.dtype != Any:
+                    allowed_types = get_args(old := required_fields[field].dtype) or [old]
+                    given_types   = get_args(new := field_type.dtype) or [new]
+
+                    if not set(allowed_types) & set(given_types):
+                        raise Exception(f"Incompatible field requirement for '{field}': a previous step requires '{old}', while another requires '{new}'")
+
                 required_fields[field] = field_type
 
             # Created fields
@@ -226,12 +233,11 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
         return wdict
 
     @staticmethod
-    def from_schema(runtime: IRuntime,
-                    workflow_dict: WorkflowSchema) -> 'Workflow':
+    def from_schema(workflow_dict: WorkflowSchema) -> 'Workflow':
 
         try:
             config       = WorkflowConfig(**workflow_dict.config)
-            workflow     = Workflow(runtime, config)
+            workflow     = Workflow(config)
             workflow._id = workflow_dict.id
 
             for sdict in workflow_dict.steps:

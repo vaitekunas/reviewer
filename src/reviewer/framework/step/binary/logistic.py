@@ -31,10 +31,15 @@ class LogisticRegression(BinaryClassifier):
     # Predictor
     @override
     def train(self, data: IDataset) -> None:
+        if self.is_trained:
+            return
+
         target, regressors = self._get_regressors(data.train_data)
 
         y = np.asarray(target)
         X = np.asarray(regressors).T
+
+        assert y.shape[0] == X.shape[0], "Invalid X,y shapes"
 
         self._model.fit(X, y)
         self._is_trained = True

@@ -56,7 +56,7 @@ class BinaryClassifier(IPredictor[BinaryClassifierConfig]):
         fields = {self._config.input_field: FieldSchema(dtype = int,  
                                                         description = "Binary target variable (0 or 1)"),
 
-                  self._config.embedding_prefix: FieldSchema(dtype       = int,  
+                  self._config.embedding_prefix: FieldSchema(dtype       = float,  
                                                              prefix      = True,
                                                              description = "Prefix for embedding fields"),
 
@@ -83,9 +83,10 @@ class BinaryClassifier(IPredictor[BinaryClassifierConfig]):
         cfg = self._config
 
         target = data.get_field_values(cfg.input_field)
+        extras = cfg.additional_regressor_fields or []
         regressors = []
-        for field in list(data.fields.keys()) + (cfg.additional_regressor_fields or []):
-            if field.startswith(cfg.embedding_prefix):
+        for field in list(data.fields.keys()):
+            if field.startswith(cfg.embedding_prefix) or field in extras:
                 regressors.append(data.get_field_values(field))
 
         return target, regressors

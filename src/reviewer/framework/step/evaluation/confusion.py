@@ -22,7 +22,7 @@ class ConfusionMatrixConfig(IConfig):
         return asdict(self)
 
 
-class ConfusionMatrix(IEvaluator):
+class ConfusionMatrix(IEvaluator[ConfusionMatrixConfig]):
 
     def __init__(self, config: ConfusionMatrixConfig | None = None) -> None:
         super().__init__(config)

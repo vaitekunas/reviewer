@@ -20,3 +20,4 @@ from .temporal import *
 from .binary import *
 from .collab_filter import *
 from .evaluation import *
+from .visualization import *

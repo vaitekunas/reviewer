@@ -15,7 +15,7 @@ class IDataset(ABC):
         raise NotImplementedError("abstract method")
 
     @abstractmethod
-    def verify_schema(self, field: str, dtype: Type[Any]) -> bool:
+    def verify_schema(self, field: str, dtype: Type[Any] | Any) -> bool:
         raise NotImplementedError("abstract method")
 
     @abstractmethod

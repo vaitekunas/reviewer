@@ -27,7 +27,7 @@ class BinaryEvaluationMetricConfig(IConfig):
         return asdict(self)
 
 
-class BinaryEvaluationMetric(IEvaluator):
+class BinaryEvaluationMetric(IEvaluator[BinaryEvaluationMetricConfig]):
 
     def __init__(self, config: BinaryEvaluationMetricConfig | None = None) -> None:
         super().__init__(config)

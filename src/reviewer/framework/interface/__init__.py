@@ -1,4 +1,3 @@
-from .iruntime import *
 from .ilogger import *
 from .iconfig import *
 from .iresultcreator import *

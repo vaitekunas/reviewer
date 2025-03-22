@@ -4,12 +4,13 @@ from dataclasses import asdict, dataclass
 import pickle
 from typing import Any
 
-from .interface import IConfig, IDataset, ILogger, IRuntime
+from .interface import IConfig, IDataset, ILogger
 from .trait import Identifiable, Configurable
 from .workflow import Workflow
 from .aliases import ResultType, ResultName, AnalysisResults, FieldSchema, AnalysisFields, AnalysisFieldMappings, WorkflowID
 from .aliases import AnalysisSchema
 
+from .runtime import Runtime
 
 @dataclass
 class AnalysisConfig(IConfig):
@@ -30,14 +31,10 @@ class AnalysisConfig(IConfig):
 class Analysis(Identifiable, Configurable[AnalysisConfig]):
 
     def __init__(self, 
-                 runtime: IRuntime,
-                 config:  AnalysisConfig | None = None,
-                 logger:  ILogger        | None = None) -> None:
+                 config:  AnalysisConfig | None = None) -> None:
 
         super().__init__()
 
-        self._runtime = runtime
-        self._logger = logger
         self._config = config or self.get_default_config()
         self._workflows: list[Workflow] = []
 
@@ -65,7 +62,12 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
 
         return self
 
-    def run(self, data: IDataset, mapping: AnalysisFieldMappings) -> tuple[IDataset, AnalysisResults]:
+    def run(self, 
+            runtime: Runtime,
+            data:    IDataset, 
+            mapping: AnalysisFieldMappings,
+            logger:  ILogger | None = None) -> tuple[IDataset, AnalysisResults]:
+
         """Runs an analysis
 
         Args:
@@ -79,6 +81,8 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
         
         # Verify field and perform mapping
         for rfield, schema in self.get_fields().required.items():
+            if not rfield.strip():
+                continue
 
             if rfield not in mapping:
                 raise Exception(f"Mapping for field '{rfield}' missing")
@@ -88,17 +92,17 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
 
             for field in fields:
                 if not data.verify_schema(field, schema.dtype):
-                    raise Exception(f"Schema for field '{field}' is wrong")
+                    raise Exception(f"Schema for field '{field}' is wrong: expecting '{schema.dtype}'")
 
             data.map_field(mapping[rfield], rfield)
 
         # Run analysis
         results: AnalysisResults = {}
         for workflow in self._workflows:
-            if self._logger:
-                self._logger.log(f"Starting workflow '{workflow}'")
+            if logger:
+                logger.log(f"Starting workflow '{workflow}'")
 
-            data, result = workflow.run(data)
+            data, result = workflow.run(runtime, data, logger)
 
             results[workflow.id] = result
 
@@ -157,13 +161,10 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
         return pickle.dumps(self)
 
     @staticmethod
-    def from_schema(runtime: IRuntime,
-                    analysis_dict: AnalysisSchema) -> 'Analysis':
+    def from_schema(analysis_dict: AnalysisSchema) -> 'Analysis':                    
 
         try:
-            analysis = Analysis(runtime = runtime,
-                                config = AnalysisConfig(**analysis_dict.config))
-
+            analysis = Analysis(config = AnalysisConfig(**analysis_dict.config))
             analysis._id = analysis_dict.id
         except:
             raise Exception("Could not initialize Analysis")

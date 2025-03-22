@@ -1,7 +1,7 @@
 __all__ = ["IVisualizer"]
 
 from abc import abstractmethod
-from typing import TypeVar
+from typing import Generator, TypeVar
 
 from .imethod import IMethod
 from .idataset import IDataset
@@ -16,5 +16,8 @@ T = TypeVar('T', bound=IConfig)
 class IVisualizer(IMethod[T], IResultCreator):
 
     @abstractmethod
-    def visualize(self, data: IDataset, results: dict[str, Result]) -> list[Result]:
+    def visualize(self, 
+                  data: IDataset, 
+                  results: dict[str, Result],
+                  palette: Generator[str, None, None]) -> list[Result]:
         raise NotImplementedError("abstract method")

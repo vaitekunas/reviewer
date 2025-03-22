@@ -4,7 +4,7 @@ import numpy as np
 from numpy.dtypes import ObjectDType, Float64DType, Int64DType, BoolDType
 import pandas as pd
 from pandas import DataFrame 
-from typing import Any, Type, override
+from typing import Any, Type, override, get_args
 
 from .interface import IDataset
 
@@ -14,7 +14,7 @@ class Dataset(IDataset):
     def __init__(self, df: DataFrame) -> None:
         super().__init__()
 
-        self._df: DataFrame = df
+        self._df: DataFrame = df.copy()
 
         self._train_part = 1
         self._train_idx  = []
@@ -27,21 +27,29 @@ class Dataset(IDataset):
     def _has_field(self, field: str) -> bool:
         return field in self._df.columns
 
-    def _match_dtype(self, dtype: Any) -> Type[Any]:
+    def _match_dtype(self, dtype: Any) -> set[Type[Any] | Any]:
 
-        if isinstance(dtype, Float64DType) or dtype is float:
-            return float
+        args = get_args(dtype) or [dtype]
 
-        if isinstance(dtype, Int64DType) or dtype is int:
-            return int
+        dtypes = set()
+        for arg in args:
+        
+            if dtype is Any: 
+                return set(Any)
 
-        if isinstance(dtype, BoolDType) or dtype is bool:
-            return bool
+            if isinstance(arg, Float64DType) or arg is float:
+                dtypes.add(float)
 
-        if isinstance(dtype, ObjectDType) or dtype is str:
-            return str
+            if isinstance(arg, Int64DType) or arg is int:
+                dtypes.add(int)
 
-        return str
+            if isinstance(arg, BoolDType) or arg is bool:
+                dtypes.add(bool)
+
+            if isinstance(arg, ObjectDType) or arg is str:
+                dtypes.add(str)
+
+        return dtypes
 
     @override
     def apply_filter(self, sql_rule: str) -> 'Dataset':
@@ -67,11 +75,17 @@ class Dataset(IDataset):
         return self
 
     @override
-    def verify_schema(self, field: str, dtype: Type[Any]) -> bool:
+    def verify_schema(self, field: str, dtype: Type[Any] | Any) -> bool:
         if not self._has_field(field):
             return False
 
-        return self._match_dtype(self._df[field].dtype) == dtype
+        if dtype is Any:
+            return True
+
+        required = self._match_dtype(self._df[field].dtype)  
+        provided = self._match_dtype(dtype)
+
+        return Any in provided or len(required & provided) > 0
 
     @override
     def drop_fields(self, fields: list[str]) -> 'Dataset':

@@ -7,8 +7,6 @@ from enum import Enum
 from typing import Any, Type, TypeAlias
 from dataclasses import asdict, dataclass
 
-from pandas.core.frame import dataclasses_to_dicts
-
 WorkflowID:      TypeAlias = str
 MethodID:        TypeAlias = str
 DatasetField:    TypeAlias = str
@@ -16,7 +14,7 @@ AnalysisField:   TypeAlias = str
 
 @dataclass 
 class FieldSchema:
-    dtype: Type[Any]
+    dtype: Type[Any] | Any
     prefix: bool = False
     description: str | None = None
 

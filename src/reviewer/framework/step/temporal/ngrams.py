@@ -54,7 +54,7 @@ class TemporalNgramAnalyser(IAnalyser[TemporalNgramAnalyserConfig]):
     def get_required_fields(self) -> dict[AnalysisField, FieldSchema]:
         return {self._config.input_field: FieldSchema(dtype = str, 
                                                       description = "Text field to be analysed"),
-                self._config.date_field: FieldSchema(dtype = str, 
+                self._config.date_field: FieldSchema(dtype = str | int, 
                                                      description = "Date field")}
 
     @override

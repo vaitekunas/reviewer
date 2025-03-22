@@ -60,7 +60,7 @@ class TemporalRatingAnalyser(IAnalyser[TemporalRatingAnalyserConfig]):
         return {
                 self._config.input_field: FieldSchema(dtype = int, 
                                                       description = "Numerical rating of the review"),
-                self._config.date_field: FieldSchema(dtype = str, 
+                self._config.date_field: FieldSchema(dtype = str | int, 
                                                      description = "Date field")}
 
     @override

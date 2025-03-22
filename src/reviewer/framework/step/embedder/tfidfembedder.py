@@ -68,8 +68,10 @@ class TfIdfEmbedder(IEmbedder[TfIdfEmbedderConfig]):
     # Embedder
     @override
     def train(self, data: IDataset) -> None:
+        if self.is_trained:
+            return
 
-        texts = data.get_field_values(self._config.input_field)
+        texts = data.train_data.get_field_values(self._config.input_field)
 
         if not self._is_trained:
             X_tfidf = self._tfidf.fit_transform(texts)
