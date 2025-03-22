@@ -7,7 +7,7 @@ __all__ = ["ApplicationService",
            
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional, Type
 
 from sqlalchemy.orm import Session
 from ..dto import *
@@ -154,11 +154,11 @@ class ApplicationService(Service):
 class AnalyticsService(Service):
 
     @abstractmethod
-    def register_method(self, MethodDTO) -> None:
+    def register_method(self, method_type: MethodType, method_class: Type[Any]) -> 'AnalyticsService':
         ...
 
     @abstractmethod
-    def get_registered_methods(self) -> list[MethodDTO]:
+    def get_registered_methods(self) -> dict[MethodType, dict[str, Type[Any]]]:
         ...
     
     @abstractmethod

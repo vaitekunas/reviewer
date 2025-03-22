@@ -7,7 +7,7 @@ These objects are not persistent and may be denormalized. The data structures
 used for persistent representation are found in the `models` module.
 """
 
-__all__ = [
+__all__ = [ "MethodType", 
             "DatasetID", "MethodID", "WorkflowID", "AnalysisID",
 
             "UserDTO", "SessionTokenDTO",
@@ -23,6 +23,17 @@ from enum import Enum
 from dataclasses import dataclass, asdict
 from typing import Any, Optional, TypeAlias
 
+
+class MethodType(Enum):
+
+    PREPROCESSOR          = "preprocessor"
+    EMBEDDER              = "embedder"
+    DESCRIPTIVE_STATISTIC = "descriptive statistic"
+    TEMPORAL_STATISTIC    = "temporal statistic"
+    CLASSIFIER            = "classifier"
+    RECOMMENDER           = "recommender"
+    EVALUATION_METRIC     = "evaluation metric"
+    VISUALIZATION         = "visualization"
 
 # Local IDs
 DatasetID: TypeAlias = str
