@@ -58,6 +58,9 @@ class BarChart(IVisualizer[BarChartConfig]):
     # Method
     @override
     def get_required_fields(self) -> dict[AnalysisField, FieldSchema]:
+        if self._config.use_result: 
+            return {}
+
         return {self._config.category_field: FieldSchema(dtype = int | float,
                                                         description = "X-axis field"),
 
@@ -74,7 +77,10 @@ class BarChart(IVisualizer[BarChartConfig]):
         if not self._config.use_result:
             return {}
 
-        return {self._config.use_result: ResultType.DATASET}
+        if (name_parts := self._config.use_result.split(".")) == 1:
+            return {self._config.use_result: ResultType.DATASET}
+        else:
+            return {name_parts[0]: ResultType.DATASET_DICT}
 
     @override
     def get_created_results(self) -> dict[ResultName, ResultType]:
@@ -92,7 +98,15 @@ class BarChart(IVisualizer[BarChartConfig]):
         if not cfg.use_result:
             data = data.copy()
         else:
-            data = results[cfg.use_result].value.copy()
+            name_parts = cfg.use_result.split(".")
+            if len(name_parts) == 1:
+                result = results[cfg.use_result]
+                data = result.value.copy()
+            else:
+                result = results[name_parts[0]].value
+                if name_parts[1] not in result:
+                    raise Exception(f"Missing result from DATASET_DICT: '{name_parts[1]}'")
+                data = result[name_parts[1]].copy()
 
         x = data.get_field_values(cfg.category_field)
         y = data.get_field_values(cfg.target_field)

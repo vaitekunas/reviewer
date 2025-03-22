@@ -20,6 +20,8 @@ class WordCloudConfig(IConfig):
     figure_height:    int = 600
     figure_bg:        str = "#FFFFFF"
 
+    use_result: str | None = None
+
     @override
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -47,6 +49,9 @@ class WordCloud(IVisualizer[WordCloudConfig]):
     # Method
     @override
     def get_required_fields(self) -> dict[AnalysisField, FieldSchema]:
+        if self._config.use_result: 
+            return {}
+
         return {self._config.input_field: FieldSchema(dtype = str,
                                                       description = "Text field")}
 
@@ -57,7 +62,13 @@ class WordCloud(IVisualizer[WordCloudConfig]):
     # Result creator
     @override
     def get_required_results(self) -> dict[ResultName, ResultType]:
-        return {}
+        if not self._config.use_result:
+            return {}
+
+        if (name_parts := self._config.use_result.split(".")) == 1:
+            return {self._config.use_result: ResultType.DATASET}
+        else:
+            return {name_parts[0]: ResultType.DATASET_DICT}
 
     @override
     def get_created_results(self) -> dict[ResultName, ResultType]:
@@ -70,8 +81,19 @@ class WordCloud(IVisualizer[WordCloudConfig]):
                   results: dict[str, Result],
                   palette: Generator[str, None, None]) -> list[Result]:
 
-        data = data.copy()
         cfg = self._config
+        if not cfg.use_result:
+            data = data.copy()
+        else:
+            name_parts = cfg.use_result.split(".")
+            if len(name_parts) == 1:
+                result = results[cfg.use_result]
+                data = result.value.copy()
+            else:
+                result = results[name_parts[0]].value
+                if name_parts[1] not in result:
+                    raise Exception(f"Missing result from DATASET_DICT: '{name_parts[1]}'")
+                data = result[name_parts[1]].copy()
 
         target = data.get_field_values(self._config.input_field)
         text   = "\n".join(target)
