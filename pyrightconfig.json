@@ -1,0 +1,5 @@
+{
+  "include": ["src/reviewer", "tests"],
+  "exclude": [".env", "**/__pycache__"],
+  "typeCheckingMode": "standard"
+}

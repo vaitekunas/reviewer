@@ -1,14 +1,16 @@
-__all__ = ["WorkflowID", "MethodID",
+__all__ = ["MethodID", "WorkflowID", "AnalysisID",
            "Result", "ResultType", "ResultName", "NamedResults", "WorkFlowResults", "AnalysisResults",
            "DatasetField", "AnalysisField", "AnalysisFieldMappings",
-           "StepSchema", "WorkflowSchema", "AnalysisSchema"]
+           "MethodSchema", "WorkflowSchema", "AnalysisSchema"]
 
 from enum import Enum
 from typing import Any, Type, TypeAlias
 from dataclasses import asdict, dataclass
 
-WorkflowID:      TypeAlias = str
 MethodID:        TypeAlias = str
+WorkflowID:      TypeAlias = str
+AnalysisID:      TypeAlias = str
+
 DatasetField:    TypeAlias = str
 AnalysisField:   TypeAlias = str
 
@@ -54,8 +56,8 @@ WorkFlowResults: TypeAlias = dict[MethodID, list[Result]]
 AnalysisResults: TypeAlias = dict[WorkflowID, WorkFlowResults]
 
 @dataclass
-class StepSchema:
-    id:        str
+class MethodSchema:
+    id:        MethodID
     module:    str
     classname: str
     config:    dict[str, Any]
@@ -64,17 +66,17 @@ class StepSchema:
         return asdict(self)
 
     @staticmethod
-    def from_dict(step_dict: dict[str, Any]) -> 'StepSchema':
-        return StepSchema(id        = step_dict["id"],
+    def from_dict(step_dict: dict[str, Any]) -> 'MethodSchema':
+        return MethodSchema(id        = step_dict["id"],
                           module    = step_dict["module"],
                           classname = step_dict["classname"],
                           config    = step_dict["config"])
 
 @dataclass
 class WorkflowSchema:
-    id:     str
+    id:     WorkflowID
     config: dict[str, Any]
-    steps:  list[StepSchema]
+    steps:  list[MethodSchema]
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -86,13 +88,13 @@ class WorkflowSchema:
                                steps  = [])
 
         for sdict in workflow_dict["steps"]:
-            wdict.steps.append(StepSchema.from_dict(sdict))
+            wdict.steps.append(MethodSchema.from_dict(sdict))
 
         return wdict
 
 @dataclass
 class AnalysisSchema:
-    id: str 
+    id: AnalysisID 
     config: dict[str, Any]
     workflows: list[WorkflowSchema]
 

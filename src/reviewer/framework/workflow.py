@@ -8,7 +8,7 @@ from .interface import IDataset, IMethod, IConfig, ILogger
 from .interface import IPreprocessor, IEmbedder, IAnalyser, IPredictor, IEvaluator, IVisualizer, IResultCreator
 from .trait import Identifiable, Configurable
 from .aliases import NamedResults, WorkFlowResults, FieldSchema, AnalysisField, AnalysisFields, Result, ResultType, ResultName
-from .aliases import StepSchema, WorkflowSchema
+from .aliases import MethodSchema, WorkflowSchema
 
 from .runtime import Runtime
 
@@ -226,7 +226,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
         for step in self._steps:
             sdict = step.get_config().to_dict()
 
-            wdict.steps.append(StepSchema(id        = step.id,
+            wdict.steps.append(MethodSchema(id        = step.id,
                                           module    = step.__module__,
                                           classname = step.__class__.__name__,
                                           config    = sdict))
