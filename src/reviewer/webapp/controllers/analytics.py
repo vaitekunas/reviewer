@@ -8,9 +8,17 @@ __all__ = ["get_method_types",
            "get_method",
 
            "get_workflows",
+           "get_workflow_by_name",
            "create_workflow",
            "modify_workflow",
            "delete_workflow",
+
+           "get_analysis",
+           "get_analysis_by_name",
+           "create_analysis",
+           "modify_analysis",
+           "delete_analysis",
+           "run_analysis"
            ]
 
 from typing import Any, Optional
@@ -126,8 +134,8 @@ def get_workflows(session_token: str = Header(...)) -> list[WorkflowDTO]:
     return workflows
 
 @app.get("/api/workflow/{workflow_name}", tags=["analytics"])
-def get_workflow(workflow_name: str,
-                 session_token: str = Header(...)) -> Optional[WorkflowDTO]:
+def get_workflow_by_name(workflow_name: str,
+                         session_token: str = Header(...)) -> Optional[WorkflowDTO]:
 
     # Services
     analytics = runtime.services.analytics
@@ -135,7 +143,7 @@ def get_workflow(workflow_name: str,
     # Workflows
     with runtime.transaction as t:
         user = _get_user(t, session_token)
-        workflow = analytics.get_workflow(t, user, workflow_name)
+        workflow = analytics.get_workflow_by_name(t, user, workflow_name)
 
     return workflow
 
@@ -169,9 +177,7 @@ def modify_workflow(workflow_name: str,
                     workflow:      WorkflowDTO,
                     session_token: str = Header(...)) -> None:
     """
-    Create a new workflow.
-
-    The workflow must have a unique name.
+    Modifies an existing workflow
     """
 
     # Services
@@ -194,6 +200,9 @@ def modify_workflow(workflow_name: str,
 @app.delete("/api/workflow/{workflow_name}", tags=["analytics"])
 def delete_workflow(workflow_name: str,
                     session_token: str = Header(...)) -> None:
+    """
+    Deletes an existing workflow
+    """
 
     # Services
     analytics = runtime.services.analytics
@@ -211,5 +220,144 @@ def delete_workflow(workflow_name: str,
 
     return None
 
+##################################
+# API: analysis
+##################################
 
+@app.get("/api/analysis", tags=["analytics"])
+def get_analysis(session_token: str = Header(...)) -> list[AnalysisDTO]:
+
+    # Services
+    analytics = runtime.services.analytics
+
+    # Workflows
+    with runtime.transaction as t:
+        user = _get_user(t, session_token)
+        analysis = analytics.get_analysis(t, user)
+
+    return analysis
+
+@app.get("/api/analysis/{analysis_name}", tags=["analytics"])
+def get_analysis_by_name(analysis_name: str,
+                         session_token: str = Header(...)) -> Optional[AnalysisDTO]:
+    # Services
+    analytics = runtime.services.analytics
+
+    # Workflows
+    with runtime.transaction as t:
+        user = _get_user(t, session_token)
+        analysis = analytics.get_analysis_by_name(t, user, analysis_name)
+
+    return analysis
+
+
+@app.post("/api/analysis", tags=["analytics"])
+def create_analysis(analysis:      AnalysisDTO,
+                    session_token: str = Header(...)) -> None:
+    """
+    Create a new analysis
+
+    The analysis must have a unique name.
+    """
+
+    # Services
+    analytics = runtime.services.analytics
+
+    # Workflows
+    with runtime.transaction as t:
+        user     = _get_user(t, session_token)
+
+        try:
+            analytics.register_analysis(t, user, analysis)
+            t.commit()
+        except Exception as e:
+            t.rollback()
+            raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                                detail = str(e))
+
+    return None
+
+@app.put("/api/analysis/{analysis_name}", tags=["analytics"])
+def modify_analysis(analysis_name: str,
+                    analysis:      AnalysisDTO,
+                    session_token: str = Header(...)) -> None:
+    """
+    Modifies an existing analysis
+    """
+
+    # Services
+    analytics = runtime.services.analytics
+
+    # Workflows
+    with runtime.transaction as t:
+        user     = _get_user(t, session_token)
+
+        try:
+            analytics.register_analysis(t, user, analysis, analysis_name, overwrite = True)
+            t.commit()
+        except Exception as e:
+            t.rollback()
+            raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                                detail = str(e))
+
+    return None
+
+@app.delete("/api/analysis/{analysis_name}", tags=["analytics"])
+def delete_analysis(analysis_name: str,
+                    session_token: str = Header(...)) -> None:
+    """
+    Deletes an existing analysis
+    """
+
+    # Services
+    analytics = runtime.services.analytics
+
+    with runtime.transaction as t:
+        user = _get_user(t, session_token)
+
+        try:
+            analytics.unregister_analysis(t, user, analysis_name)
+            t.commit()
+        except Exception as e:
+            t.rollback()
+            raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                                detail = str(e))
+
+    return None
+
+@app.post("/api/analysis/{analysis_name}", tags=["analytics"])
+def run_analysis(analysis_name: str,
+                 run_setup:     RunSetupDTO,
+                 session_token: str = Header(...)) -> None:
+    """
+    Runs an existing analysis
+
+    """
+
+    # Services
+    analytics = runtime.services.analytics
+
+    # Workflows
+    with runtime.transaction as t:
+        user     = _get_user(t, session_token)
+
+        try:
+            dataset_name = run_setup.dataset_name
+            mapping      = run_setup.mapping
+            analysis     = run_setup.analysis
+
+            analytics.run_analysis(t, 
+                                   user          = user, 
+                                   analysis_name = analysis_name,
+                                   dataset_name  = dataset_name, 
+                                   mapping       = mapping, 
+                                   analysis      = analysis)
+
+            t.commit()
+        except Exception as e:
+            t.rollback()
+            raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                                detail = str(e))
+
+    return None
 

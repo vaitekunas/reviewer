@@ -4,18 +4,21 @@ __all__ = ["DefaultAnalyticsService"]
 import json
 import logging
 from logging import Logger
-from typing import Optional, override, Type, TypeVar
+from typing import Optional, override, TypeVar
 
 from sqlalchemy.orm import Session 
 
 from ..dto import *
 from ..dto import MethodRegistrationDTO
 from ..interfaces import AnalyticsService
-from ..models import WorkflowRepository
+from ..models import WorkflowRepository, AnalysisRepository
 
-from ...framework.interface import IConfig, IMethod
+from ...framework.interface import IConfig
 from ...framework.workflow import Workflow
-from ...framework.aliases import WorkflowSchema
+from ...framework.analysis import Analysis
+from ...framework.dataset import Dataset
+from ...framework.runtime import Runtime as AnalysisRuntime
+from ...framework.aliases import WorkflowSchema, AnalysisSchema
 
 
 T = TypeVar("T", bound=IConfig)
@@ -33,6 +36,7 @@ class DefaultAnalyticsService(AnalyticsService):
             self._logger = logging.getLogger("analytics")
 
         self._w_repo = WorkflowRepository(workflow_dir = f"{work_dir}/workflows")
+        self._a_repo = AnalysisRepository(analysis_dir = f"{work_dir}/analysis")
 
         self._methods = {}
         self._register_methods(method_registry)
@@ -72,13 +76,13 @@ class DefaultAnalyticsService(AnalyticsService):
         return self._w_repo.get_workflows(t, user_id = user.user_id)
 
     @override
-    def get_workflow(self, 
-                     t:    Session,
-                     user: UserDTO, workflow_name: str) -> Optional[WorkflowDTO]:
+    def get_workflow_by_name(self, 
+                             t:    Session,
+                             user: UserDTO, workflow_name: str) -> Optional[WorkflowDTO]:
         
-        return self._w_repo.get_workflow(t, 
-                                         user_id = user.user_id, 
-                                         workflow_name = workflow_name)
+        return self._w_repo.get_workflow_by_name(t, 
+                                                 user_id = user.user_id, 
+                                                 workflow_name = workflow_name)
 
     @override
     def register_workflow(self, 
@@ -92,11 +96,11 @@ class DefaultAnalyticsService(AnalyticsService):
         w = self._validate_workflow_dto(workflow) 
 
         # Validate name
-        if name and w.name != name:
+        if name and w.name.lower() != name.lower():
            raise Exception("Invalid workflow name")
 
         # Store in repo
-        w_exists = self.get_workflow(t, user, w.get_config().name) is not None
+        w_exists = self.get_workflow_by_name(t, user, w.get_config().name) is not None
 
         if w_exists:
             if not overwrite:
@@ -123,7 +127,7 @@ class DefaultAnalyticsService(AnalyticsService):
                             name: str) -> None:
         
         # Find workflow
-        w = self.get_workflow(t, user, name)
+        w = self.get_workflow_by_name(t, user, name)
         if not w:
             raise Exception("Workflow not found")
 
@@ -133,20 +137,102 @@ class DefaultAnalyticsService(AnalyticsService):
                                      workflow_name = name) 
 
     # Analysis
+    def _validate_analysis_dto(self, analysis: AnalysisDTO) -> Analysis:
+        try:
+            return Analysis.from_schema(AnalysisSchema.from_dict(analysis.to_dict()))
+        except Exception as e:
+            raise Exception(f"Invalid analysis: {str(e)}")
+
     @override
     def get_analysis(self, 
                      t:    Session,
                      user: UserDTO) -> list[AnalysisDTO]:
-        raise NotImplementedError()
+        
+        return self._a_repo.get_analysis(t, user.user_id)
+
+    @override
+    def get_analysis_by_name(self, 
+                             t:             Session,
+                             user:          UserDTO,
+                             analysis_name: str) -> Optional[AnalysisDTO]:
+
+        return self._a_repo.get_analysis_by_name(t, user.user_id, analysis_name)
 
     @override
     def register_analysis(self, 
                           t:         Session,
+                          user:      UserDTO,
                           analysis:  AnalysisDTO,
+                          name:      str | None  = None,
                           overwrite: bool = False) -> None:
-        raise NotImplementedError()
 
+        # Validate DTO
+        a = self._validate_analysis_dto(analysis) 
+
+        # Validate name
+        if name and a.name.lower() != name.lower():
+           raise Exception("Invalid analysis name")
+
+        # Store in repo
+        a_exists = self.get_analysis_by_name(t, user, a.get_config().name) is not None
+
+        if a_exists:
+            if not overwrite:
+               raise Exception("Workflow name already taken")
+
+            path = self._a_repo.modify_analysis(t, 
+                                                user_id       = user.user_id, 
+                                                analysis_name = a.name, 
+                                                analysis      = analysis)
+
+            self._logger.info(f"Modified analysis '{a.name}' (document: '{path}'")
+        else:
+            path = self._a_repo.add_analysis(t, 
+                                             user_id       = user.user_id, 
+                                             analysis_name = a.name, 
+                                             analysis      = analysis)
+
+            self._logger.info(f"Registered analysis '{a.name}' (document: '{path}'")
 
     @override
-    def run_analysis(self, analysis: AnalysisDTO) -> ResultsDTO:
-        raise NotImplementedError()
+    def unregister_analysis(self, 
+                            t:    Session,
+                            user: UserDTO,
+                            name: str) -> None:
+
+        # Find analysis
+        a = self.get_analysis_by_name(t, user, name)
+        if not a:
+            raise Exception("Analysis not found")
+
+        # Delete analysis
+        self._a_repo.delete_analysis(t, 
+                                     user_id       = user.user_id, 
+                                     analysis_name = name) 
+
+    @override
+    def run_analysis(self, 
+                     t:             Session,
+                     user:          UserDTO,
+                     analysis_name: str,
+                     dataset_name:  str,
+                     mapping:       dict[str, str],
+                     analysis:      AnalysisDTO) -> ResultsDTO:
+                     
+        # Initialize data
+        data = Dataset.new(fields = {})
+
+        # Prepare analyzer
+        analyzer = Analysis.from_schema(AnalysisSchema.from_dict(analysis.to_dict()))
+
+        analysis_runtime = AnalysisRuntime(dataset_constructor = Dataset.new)
+        data_post, results = analyzer.run(runtime = analysis_runtime, 
+                                          data    = data, 
+                                          mapping = mapping)
+
+        # @TODO: implement result saving using result repository
+        # @TODO: also save the analysis.json used to run it.
+
+        return results
+
+        

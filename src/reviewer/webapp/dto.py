@@ -14,6 +14,7 @@ __all__ = [ "MethodType",
             "DatasetDTO",
             "MethodRegistrationDTO", "MethodDTO",
             "WorkflowDTO", "AnalysisDTO",
+            "RunSetupDTO",
             "ResultsDTO",
            ]
 
@@ -23,6 +24,8 @@ from pandas import DataFrame
 from enum import Enum
 from dataclasses import dataclass, asdict
 from typing import Any, Optional, Type, TypeAlias, TypeVar
+
+from reviewer.framework.analysis import Analysis
 
 from ..framework.interface import IConfig, IMethod
 
@@ -118,11 +121,24 @@ class WorkflowDTO:
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
+@dataclass 
+class AnalysisDTO:
+    config: dict[str, Any]
+    workflows: list[WorkflowDTO]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+@dataclass 
+class RunSetupDTO:
+    dataset_name: str
+    mapping:      dict[str, str]
+    analysis:     AnalysisDTO
+
 # Foreign IDs
 from ..framework.aliases import MethodID, WorkflowID, AnalysisID
 
 # Foreign DTOs
-from ..framework.aliases import AnalysisSchema  as AnalysisDTO
 from ..framework.aliases import AnalysisResults as ResultsDTO
 
 

@@ -73,10 +73,10 @@ class WorkflowRepository(Repository):
 
         return workflows
 
-    def get_workflow(self,
-                     session: Session,
-                     user_id: int,
-                     workflow_name: str) -> Optional[WorkflowDTO]:
+    def get_workflow_by_name(self,
+                             session: Session,
+                             user_id: int,
+                             workflow_name: str) -> Optional[WorkflowDTO]:
 
         """
         Returns a single workflow by its name, if it w_exists

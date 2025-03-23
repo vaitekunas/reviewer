@@ -166,7 +166,7 @@ class AnalyticsService(Service):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_workflow(self, t: Session, user: UserDTO, workflow_name: str) -> Optional[WorkflowDTO]:
+    def get_workflow_by_name(self, t: Session, user: UserDTO, workflow_name: str) -> Optional[WorkflowDTO]:
         raise NotImplementedError()
 
     @abstractmethod
@@ -185,7 +185,6 @@ class AnalyticsService(Service):
                             name: str) -> None:
         raise NotImplementedError()
 
-
     # Analysis
     @abstractmethod
     def get_analysis(self, 
@@ -194,16 +193,36 @@ class AnalyticsService(Service):
         raise NotImplementedError()
 
     @abstractmethod
+    def get_analysis_by_name(self, 
+                             t:             Session,
+                             user:          UserDTO,
+                             analysis_name: str) -> Optional[AnalysisDTO]:
+        raise NotImplementedError()
+
+    @abstractmethod
     def register_analysis(self, 
                           t:         Session,
+                          user:      UserDTO,
                           analysis:  AnalysisDTO,
+                          name:      str | None  = None,
                           overwrite: bool = False) -> None:
         raise NotImplementedError()
 
+    @abstractmethod
+    def unregister_analysis(self, 
+                            t:    Session,
+                            user: UserDTO,
+                            name: str) -> None:
+        raise NotImplementedError()
 
     @abstractmethod
     def run_analysis(self, 
-                     analysis: AnalysisDTO) -> ResultsDTO:
+                     t:             Session,
+                     user:          UserDTO,
+                     analysis_name: str,
+                     dataset_name:  str,
+                     mapping:       dict[str, str],
+                     analysis:      AnalysisDTO) -> ResultsDTO:
         raise NotImplementedError()
 
 
