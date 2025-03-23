@@ -110,11 +110,18 @@ class MethodRegistrationDTO:
                                      method_config = method_config,
                                      method_class  = method_class)
 
+@dataclass 
+class WorkflowDTO:
+    config: dict[str, Any]
+    steps: list[Any]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
 # Foreign IDs
 from ..framework.aliases import MethodID, WorkflowID, AnalysisID
 
 # Foreign DTOs
-from ..framework.aliases import WorkflowSchema  as WorkflowDTO
 from ..framework.aliases import AnalysisSchema  as AnalysisDTO
 from ..framework.aliases import AnalysisResults as ResultsDTO
 

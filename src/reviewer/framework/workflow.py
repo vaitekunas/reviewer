@@ -6,7 +6,7 @@ from typing import Any, override, get_args
 
 from .interface import IDataset, IMethod, IConfig, ILogger 
 from .interface import IPreprocessor, IEmbedder, IAnalyser, IPredictor, IEvaluator, IVisualizer, IResultCreator
-from .trait import Identifiable, Configurable
+from .trait import get_object_id, Identifiable, Configurable
 from .aliases import NamedResults, WorkFlowResults, FieldSchema, AnalysisField, AnalysisFields, Result, ResultType, ResultName
 from .aliases import MethodSchema, WorkflowSchema
 
@@ -238,7 +238,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
         try:
             config       = WorkflowConfig(**workflow_dict.config)
             workflow     = Workflow(config)
-            workflow._id = workflow_dict.id
+            workflow._id = workflow_dict.id or get_object_id(workflow)
 
             for sdict in workflow_dict.steps:
 

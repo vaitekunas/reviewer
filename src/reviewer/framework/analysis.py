@@ -5,7 +5,7 @@ import pickle
 from typing import Any
 
 from .interface import IConfig, IDataset, ILogger
-from .trait import Identifiable, Configurable
+from .trait import get_object_id, Identifiable, Configurable
 from .workflow import Workflow
 from .aliases import ResultType, ResultName, AnalysisResults, FieldSchema, AnalysisFields, AnalysisFieldMappings, WorkflowID
 from .aliases import AnalysisSchema
@@ -165,7 +165,7 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
 
         try:
             analysis = Analysis(config = AnalysisConfig(**analysis_dict.config))
-            analysis._id = analysis_dict.id
+            analysis._id = analysis_dict.id or get_object_id(analysis)
         except:
             raise Exception("Could not initialize Analysis")
 

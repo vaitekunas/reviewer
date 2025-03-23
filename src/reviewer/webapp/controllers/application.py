@@ -2,6 +2,7 @@
 Controllers for the application service.
 """
 from typing import Optional
+from pydantic import SecretStr
 from fastapi import HTTPException, Header, status
 
 from .. import app, runtime
@@ -11,7 +12,7 @@ logger = runtime.logger.getChild("API/application")
 
 
 @app.post("/api/user", tags=["application"])
-def register(username: str, password: str) -> Optional[UserDTO]:
+def register(username: str, password: SecretStr) -> Optional[UserDTO]:
     """
     Registers a new user.
 
@@ -23,7 +24,9 @@ def register(username: str, password: str) -> Optional[UserDTO]:
         Optional[UserDTO]: user representation if registration successful
     """
 
-    if len(username.strip()) < 3 or len(password.strip()) < 3:
+    clean_password = password.get_secret_value()
+
+    if len(username.strip()) < 3 or len(clean_password.strip()) < 3:
             logger.warning("Invalid credentials (too short)")
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                                 detail = "Credentials too short")
@@ -32,7 +35,7 @@ def register(username: str, password: str) -> Optional[UserDTO]:
 
         user = runtime.services.application.create_user(session  = t,
                                                         username = username,
-                                                        password = password)
+                                                        password = clean_password)
 
         if user is None:
             t.rollback()
@@ -47,7 +50,7 @@ def register(username: str, password: str) -> Optional[UserDTO]:
 
 
 @app.post("/api/session", tags=["application"])
-def login(username: str, password: str) -> Optional[SessionTokenDTO]:
+def login(username: str, password: SecretStr) -> Optional[SessionTokenDTO]:
     """
     Creates a user session.
 
@@ -68,10 +71,11 @@ def login(username: str, password: str) -> Optional[SessionTokenDTO]:
         
     # Login
     with runtime.transaction as t:
-        
+        clean_password = password.get_secret_value()
+
         token = application.login(session     = t,
                                   username    = username,
-                                  password    = password,
+                                  password    = clean_password,
                                   session_ttl = runtime.session_ttl)
 
         if token is None:

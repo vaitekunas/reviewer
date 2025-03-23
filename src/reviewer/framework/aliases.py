@@ -74,7 +74,7 @@ class MethodSchema:
 
 @dataclass
 class WorkflowSchema:
-    id:     WorkflowID
+    id:     WorkflowID | None
     config: dict[str, Any]
     steps:  list[MethodSchema]
 
@@ -83,7 +83,7 @@ class WorkflowSchema:
 
     @staticmethod
     def from_dict(workflow_dict: dict[str, Any]) -> 'WorkflowSchema':
-        wdict = WorkflowSchema(id     = workflow_dict["id"],
+        wdict = WorkflowSchema(id     = workflow_dict.get("id", None),
                                config = workflow_dict["config"],
                                steps  = [])
 
@@ -94,7 +94,7 @@ class WorkflowSchema:
 
 @dataclass
 class AnalysisSchema:
-    id: AnalysisID 
+    id: AnalysisID | None
     config: dict[str, Any]
     workflows: list[WorkflowSchema]
 
@@ -103,7 +103,7 @@ class AnalysisSchema:
 
     @staticmethod
     def from_dict(analysis_dict: dict[str, Any]) -> 'AnalysisSchema':
-        adict = AnalysisSchema(id        = analysis_dict["id"],
+        adict = AnalysisSchema(id        = analysis_dict.get("id", None),
                                config    = analysis_dict["config"],
                                workflows = [])
 

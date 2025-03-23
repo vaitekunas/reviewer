@@ -155,26 +155,55 @@ class ApplicationService(Service):
 
 class AnalyticsService(Service):
 
+    # Methods
     @abstractmethod
     def get_methods(self) -> dict[MethodType, list[MethodRegistrationDTO]]:
         raise NotImplementedError()
     
+    # Workflows
     @abstractmethod
-    def define_workflow(self, 
-                        name: str,
-                        description: str, 
-                        methods: list[MethodDTO]) -> WorkflowDTO:
+    def get_workflows(self, t: Session, user: UserDTO) -> list[WorkflowDTO]:
         raise NotImplementedError()
 
     @abstractmethod
-    def define_analysis(self, 
-                        name: str,
-                        description: str,
-                        workflows: list[WorkflowDTO]) -> AnalysisDTO:
+    def get_workflow(self, t: Session, user: UserDTO, workflow_name: str) -> Optional[WorkflowDTO]:
         raise NotImplementedError()
 
     @abstractmethod
-    def run_analysis(self, analysis: AnalysisDTO) -> ResultsDTO:
+    def register_workflow(self, 
+                          t:           Session,
+                          user:        UserDTO,
+                          workflow:    WorkflowDTO,
+                          name:        str | None  = None,
+                          overwrite:   bool = False) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def unregister_workflow(self, 
+                            t:    Session,
+                            user: UserDTO,
+                            name: str) -> None:
+        raise NotImplementedError()
+
+
+    # Analysis
+    @abstractmethod
+    def get_analysis(self, 
+                     t:    Session,
+                     user: UserDTO) -> list[AnalysisDTO]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def register_analysis(self, 
+                          t:         Session,
+                          analysis:  AnalysisDTO,
+                          overwrite: bool = False) -> None:
+        raise NotImplementedError()
+
+
+    @abstractmethod
+    def run_analysis(self, 
+                     analysis: AnalysisDTO) -> ResultsDTO:
         raise NotImplementedError()
 
 
