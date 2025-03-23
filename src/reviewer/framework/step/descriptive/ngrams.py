@@ -13,10 +13,10 @@ from ...aliases import AnalysisField, FieldSchema, ResultType, Result, NamedResu
 @dataclass
 class NgramAnalyserConfig(IConfig):
 
-    input_field: str
-    output_name: str
-    ngram_range: tuple[int, int]
-    max_ngrams:  int 
+    input_field: str = "text"
+    output_name: str = "ngrams"
+    ngram_range: tuple[int, int] = (1, 1)
+    max_ngrams:  int = 50
 
     @override
     def to_dict(self) -> dict[str, Any]:
@@ -42,10 +42,7 @@ class NgramAnalyser(IAnalyser[NgramAnalyserConfig]):
     # Configurable
     @override
     def get_default_config(self) -> NgramAnalyserConfig:
-        return NgramAnalyserConfig(input_field = "text",
-                                   output_name = "ngrams",
-                                   ngram_range = (1, 1),
-                                   max_ngrams  = 50)
+        return NgramAnalyserConfig()
 
     # Method
     @override

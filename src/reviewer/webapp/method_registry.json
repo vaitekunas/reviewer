@@ -1,0 +1,182 @@
+[
+  {
+    "name": "Preprocessor",
+    "description": "A collection of standard preprocessing techniques (stopword removal, symbol removal, stemming and lemmatization)",
+    "method_type": "preprocessing",
+    "method_config_module": "reviewer.framework.step.preprocessor.preprocessor",
+    "method_config_classname": "PreprocessorConfig",
+    "method_class_module": "reviewer.framework.step.preprocessor.preprocessor",
+    "method_class_classname": "Preprocessor"
+  },
+  {
+    "name": "TF-IDF-Embedder",
+    "description": "Term-Frequency, Inverse-document-frequency Vectorizer with optional singular value decomposition (SVD) step.",
+    "method_type": "embedding",
+    "method_config_module": "reviewer.framework.step.embedder.tfidfembedder",
+    "method_config_classname": "TfIdfEmbedderConfig",
+    "method_class_module": "reviewer.framework.step.embedder.tfidfembedder",
+    "method_class_classname": "TfIdfEmbedder"
+  },
+  {
+    "name": "Ngram Analyser",
+    "description": "Descriptive analysis of words / word phrases",
+    "method_type": "description",
+    "method_config_module": "reviewer.framework.step.descriptive.ngrams",
+    "method_config_classname": "NgramAnalyserConfig",
+    "method_class_module": "reviewer.framework.step.descriptive.ngrams",
+    "method_class_classname": "NgramAnalyser"
+  },
+  {
+    "name": "Rating Analyser",
+    "description": "Descriptive analysis of customer review ratings",
+    "method_type": "description",
+    "method_config_module": "reviewer.framework.step.descriptive.ratings",
+    "method_config_classname": "RatingAnalyserConfig",
+    "method_class_module": "reviewer.framework.step.descriptive.ratings",
+    "method_class_classname": "RatingAnalyser"
+  },
+  {
+    "name": "Temporal Ngram Analyser",
+    "description": "Temporal analysis of words / word phrases",
+    "method_type": "trend",
+    "method_config_module": "reviewer.framework.step.temporal.ngrams",
+    "method_config_classname": "TemporalNgramAnalyserConfig",
+    "method_class_module": "reviewer.framework.step.temporal.ngrams",
+    "method_class_classname": "TemporalNgramAnalyser"
+  },
+  {
+    "name": "Temporal Rating Analyser",
+    "description": "Temporal analysis of customer review ratings",
+    "method_type": "trend",
+    "method_config_module": "reviewer.framework.step.temporal.ratings",
+    "method_config_classname": "TemporalRatingAnalyserConfig",
+    "method_class_module": "reviewer.framework.step.temporal.ratings",
+    "method_class_classname": "TemporalRatingAnalyser"
+  },
+  {
+    "name": "Logistic Regression",
+    "description": "Binary classification using logistic regression.",
+    "method_type": "classification",
+    "method_config_module": "reviewer.framework.step.binary.logistic",
+    "method_config_classname": "LogisticRegressionConfig",
+    "method_class_module": "reviewer.framework.step.binary.logistic",
+    "method_class_classname": "LogisticRegression"
+  },
+  {
+    "name": "SVM",
+    "description": "Binary classification using support vector machines (SVM).",
+    "method_type": "classification",
+    "method_config_module": "reviewer.framework.step.binary.svm",
+    "method_config_classname": "SVMConfig",
+    "method_class_module": "reviewer.framework.step.binary.svm",
+    "method_class_classname": "SVM"
+  },
+  {
+    "name": "Decision Tree",
+    "description": "Binary classification using decision tree.",
+    "method_type": "classification",
+    "method_config_module": "reviewer.framework.step.binary.decision_tree",
+    "method_config_classname": "DecisionTreeConfig",
+    "method_class_module": "reviewer.framework.step.binary.decision_tree",
+    "method_class_classname": "DecisionTree"
+  },
+  {
+    "name": "Random Forest",
+    "description": "Binary classification using random forest.",
+    "method_type": "classification",
+    "method_config_module": "reviewer.framework.step.binary.random_forest",
+    "method_config_classname": "RandomForestConfig",
+    "method_class_module": "reviewer.framework.step.binary.random_forest",
+    "method_class_classname": "RandomForest"
+  },
+  {
+    "name": "Naive Bayes",
+    "description": "Binary classification using naive bayes.",
+    "method_type": "classification",
+    "method_config_module": "reviewer.framework.step.binary.naive_bayes",
+    "method_config_classname": "NaiveBayesConfig",
+    "method_class_module": "reviewer.framework.step.binary.naive_bayes",
+    "method_class_classname": "NaiveBayes"
+  },
+  {
+    "name": "Collaborative Filtering",
+    "description": "Product recommendation using collaborative filtering.",
+    "method_type": "recommendation",
+    "method_config_module": "reviewer.framework.step.collab_filter.cf",
+    "method_config_classname": "CollaborativeFilteringConfig",
+    "method_class_module": "reviewer.framework.step.collab_filter.cf",
+    "method_class_classname": "CollaborativeFiltering"
+  },
+  {
+    "name": "Binary Evaluation Metrics",
+    "description": "Standard binary prediction evaluation metrics (precision, recall, f1, accuracy).",
+    "method_type": "evaluation",
+    "method_config_module": "reviewer.framework.step.evaluation.metric",
+    "method_config_classname": "BinaryEvaluationMetricConfig",
+    "method_class_module": "reviewer.framework.step.evaluation.metric",
+    "method_class_classname": "BinaryEvaluationMetric"
+  },
+  {
+    "name": "ROC-AUC",
+    "description": "Receiver operating characteristic, area under curve value for binary predictors.",
+    "method_type": "evaluation",
+    "method_config_module": "reviewer.framework.step.evaluation.roc",
+    "method_config_classname": "ROCConfig",
+    "method_class_module": "reviewer.framework.step.evaluation.roc",
+    "method_class_classname": "ROC"
+  },
+  {
+    "name": "Confusion Matrix",
+    "description": "True positive, false positive, true negative and false negative values for binary predictors.",
+    "method_type": "evaluation",
+    "method_config_module": "reviewer.framework.step.evaluation.confusion",
+    "method_config_classname": "ConfusionMatrixConfig",
+    "method_class_module": "reviewer.framework.step.evaluation.confusion",
+    "method_class_classname": "ConfusionMatrix"
+  },
+  {
+    "name": "Wordcloud",
+    "description": "Visualization of most common words",
+    "method_type": "visualization",
+    "method_config_module": "reviewer.framework.step.visualization.wordcloud",
+    "method_config_classname": "WordCloudConfig",
+    "method_class_module": "reviewer.framework.step.visualization.wordcloud",
+    "method_class_classname": "WordCloud"
+  },
+  {
+    "name": "t-SNE",
+    "description": "t-stochastic neighbour embedding visualization.",
+    "method_type": "visualization",
+    "method_config_module": "reviewer.framework.step.visualization.tsne",
+    "method_config_classname": "TSneVisualizationConfig",
+    "method_class_module": "reviewer.framework.step.visualization.tsne",
+    "method_class_classname": "TSneVisualization"
+  },
+  {
+    "name": "Scatter plot",
+    "description": "Visualization of (x,y) pairs as individual points.",
+    "method_type": "visualization",
+    "method_config_module": "reviewer.framework.step.visualization.scatterplot",
+    "method_config_classname": "ScatterPlotConfig",
+    "method_class_module": "reviewer.framework.step.visualization.scatterplot",
+    "method_class_classname": "ScatterPlot"
+  },
+  {
+    "name": "Line plot",
+    "description": "Visualization of (x,y) pairs as a line.",
+    "method_type": "visualization",
+    "method_config_module": "reviewer.framework.step.visualization.lineplot",
+    "method_config_classname": "LinePlotConfig",
+    "method_class_module": "reviewer.framework.step.visualization.lineplot",
+    "method_class_classname": "LinePlot"
+  },
+  {
+    "name": "Bar chart",
+    "description": "Visualization of category counts as vertical columns.",
+    "method_type": "visualization",
+    "method_config_module": "reviewer.framework.step.visualization.barchart",
+    "method_config_classname": "BarChartConfig",
+    "method_class_module": "reviewer.framework.step.visualization.barchart",
+    "method_class_classname": "BarChart"
+  }
+]

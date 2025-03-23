@@ -68,9 +68,9 @@ class MethodSchema:
     @staticmethod
     def from_dict(step_dict: dict[str, Any]) -> 'MethodSchema':
         return MethodSchema(id        = step_dict["id"],
-                          module    = step_dict["module"],
-                          classname = step_dict["classname"],
-                          config    = step_dict["config"])
+                            module    = step_dict["module"],
+                            classname = step_dict["classname"],
+                            config    = step_dict["config"])
 
 @dataclass
 class WorkflowSchema:

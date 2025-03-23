@@ -13,9 +13,9 @@ from ...aliases import AnalysisField, FieldSchema
 @dataclass
 class TfIdfEmbedderConfig(IConfig):
 
-    input_field:   str
-    output_prefix: str
-    ngram_range:   tuple[int, int]
+    input_field:   str = "text"
+    output_prefix: str = "emb_"
+    ngram_range:   tuple[int, int] = (1, 1)
 
     max_features:       int  = 1024
     use_svd:            bool = True
@@ -49,9 +49,7 @@ class TfIdfEmbedder(IEmbedder[TfIdfEmbedderConfig]):
     # Configurable
     @override
     def get_default_config(self) -> TfIdfEmbedderConfig:
-        return TfIdfEmbedderConfig(input_field   = "text", 
-                                   output_prefix = "emb_",
-                                   ngram_range   = (1, 1))
+        return TfIdfEmbedderConfig()
 
     # Method
     @override

@@ -14,8 +14,8 @@ from ...interface import IConfig, IPreprocessor, IDataset
 @dataclass
 class PreprocessorConfig(IConfig):
 
-    input_field:  str
-    output_field: str
+    input_field:  str = "text"
+    output_field: str = "text"
 
     language: str = "english"
 
@@ -51,8 +51,7 @@ class Preprocessor(IPreprocessor[PreprocessorConfig]):
     # Configurable
     @override
     def get_default_config(self) -> PreprocessorConfig:
-        return PreprocessorConfig(input_field = "text", 
-                                  output_field = "text")
+        return PreprocessorConfig()
 
     # Method
     @override

@@ -2,7 +2,7 @@ __all__ = ["TemporalRatingAnalyserConfig", "TemporalRatingAnalyser"]
 
 import numpy as np
 from collections import Counter
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from typing import Callable, Any, override
 
 from ...interface import IConfig, IDataset, IAnalyser
@@ -12,14 +12,14 @@ from ...aliases import AnalysisField, FieldSchema, ResultType, Result, NamedResu
 @dataclass
 class TemporalRatingAnalyserConfig(IConfig):
 
-    input_field: str
-    date_field:  str
-    output_histogram_name: str
-    output_quantile_name:  str
-    quantiles:  list[float]
-    min_rating: int
-    max_rating: int
-    fill_rating_gaps: bool
+    input_field:           str = "rating"
+    date_field:            str = "date"
+    output_histogram_name: str = "rating_histogram"
+    output_quantile_name:  str = "rating_quantiles"
+    quantiles:             list[float] = field(default_factory = lambda: [0.05, 0.25, 0.50, 0.75, 0.95]) 
+    min_rating:            int = 1
+    max_rating:            int = 5
+    fill_rating_gaps:      bool = False
 
     @override
     def to_dict(self) -> dict[str, Any]:
@@ -45,14 +45,7 @@ class TemporalRatingAnalyser(IAnalyser[TemporalRatingAnalyserConfig]):
     # Configurable
     @override
     def get_default_config(self) -> TemporalRatingAnalyserConfig:
-        return TemporalRatingAnalyserConfig(input_field           = "rating",
-                                            date_field            = "date",
-                                            output_histogram_name = "rating_histogram",
-                                            quantiles             = [0.05, 0.25, 0.50, 0.75, 0.95],
-                                            output_quantile_name  = "rating_quantiles",
-                                            min_rating            = 1,
-                                            max_rating            = 5,
-                                            fill_rating_gaps      = False)
+        return TemporalRatingAnalyserConfig()
 
     # Method
     @override

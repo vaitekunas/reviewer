@@ -7,11 +7,13 @@ __all__ = ["ApplicationService",
            
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Type
+from typing import Any, Optional, Type, TypeVar
 
 from sqlalchemy.orm import Session
 from ..dto import *
+from ...framework.interface import IConfig, IMethod
 
+T = TypeVar("T", bound=IConfig)
 
 class Service(ABC):
     """
@@ -154,30 +156,26 @@ class ApplicationService(Service):
 class AnalyticsService(Service):
 
     @abstractmethod
-    def register_method(self, method_type: MethodType, method_class: Type[Any]) -> 'AnalyticsService':
-        ...
-
-    @abstractmethod
-    def get_registered_methods(self) -> dict[MethodType, dict[str, Type[Any]]]:
-        ...
+    def get_methods(self) -> dict[MethodType, list[MethodRegistrationDTO]]:
+        raise NotImplementedError()
     
     @abstractmethod
     def define_workflow(self, 
                         name: str,
                         description: str, 
                         methods: list[MethodDTO]) -> WorkflowDTO:
-        ...
+        raise NotImplementedError()
 
     @abstractmethod
     def define_analysis(self, 
                         name: str,
                         description: str,
                         workflows: list[WorkflowDTO]) -> AnalysisDTO:
-        ...
+        raise NotImplementedError()
 
     @abstractmethod
     def run_analysis(self, analysis: AnalysisDTO) -> ResultsDTO:
-        ...
+        raise NotImplementedError()
 
 
 class ExternalService(Service):

@@ -3,3 +3,4 @@ __all__ = ["index",
 
 from .default     import index
 from .application import register, login, logout, renew_token
+from .analytics   import *

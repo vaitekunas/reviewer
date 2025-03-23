@@ -227,9 +227,9 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
             sdict = step.get_config().to_dict()
 
             wdict.steps.append(MethodSchema(id        = step.id,
-                                          module    = step.__module__,
-                                          classname = step.__class__.__name__,
-                                          config    = sdict))
+                                            module    = step.__module__,
+                                            classname = step.__class__.__name__,
+                                            config    = sdict))
         return wdict
 
     @staticmethod
