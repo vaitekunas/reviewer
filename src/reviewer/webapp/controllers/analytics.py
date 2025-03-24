@@ -21,8 +21,10 @@ __all__ = ["get_method_types",
            "run_analysis"
            ]
 
-from typing import Any, Optional
-from fastapi import HTTPException, Header, status
+import io
+import pandas as pd
+from typing import Optional
+from fastapi import File, HTTPException, Header, UploadFile, status
 from sqlalchemy.orm.session import Session
 
 from .. import app, runtime
@@ -51,12 +53,12 @@ def _get_user(t: Session, session_token: str) -> UserDTO:
 # API: method
 ##################################
 
-@app.get("/api/method/type", tags=["analytics"])
+@app.get("/api/method/type", tags=["analytics :: method"])
 def get_method_types() -> list[str]:
     return [x.value for x in MethodType]
 
 
-@app.get("/api/method", tags=["analytics"])
+@app.get("/api/method", tags=["analytics :: method"])
 def get_methods() -> dict[MethodType, dict[str, MethodDTO]]:
     
     result = {}
@@ -72,7 +74,7 @@ def get_methods() -> dict[MethodType, dict[str, MethodDTO]]:
 
     return result
 
-@app.get("/api/method/{method_type}", tags=["analytics"])
+@app.get("/api/method/{method_type}", tags=["analytics :: method"])
 def get_methods_of_type(method_type: str) -> list[MethodDTO]:
     
     # Get MethodType
@@ -92,7 +94,7 @@ def get_methods_of_type(method_type: str) -> list[MethodDTO]:
 
     return methods
 
-@app.get("/api/method/{method_type}/{method_class}", tags=["analytics"])
+@app.get("/api/method/{method_type}/{method_class}", tags=["analytics :: method"])
 def get_method(method_type: str, method_class: str) -> Optional[MethodDTO]:
     
     # Get MethodType
@@ -120,7 +122,7 @@ def get_method(method_type: str, method_class: str) -> Optional[MethodDTO]:
 # API: workflow
 ##################################
 
-@app.get("/api/workflow", tags=["analytics"])
+@app.get("/api/workflow", tags=["analytics :: workflow"])
 def get_workflows(session_token: str = Header(...)) -> list[WorkflowDTO]:
 
     # Services
@@ -133,7 +135,7 @@ def get_workflows(session_token: str = Header(...)) -> list[WorkflowDTO]:
 
     return workflows
 
-@app.get("/api/workflow/{workflow_name}", tags=["analytics"])
+@app.get("/api/workflow/{workflow_name}", tags=["analytics :: workflow"])
 def get_workflow_by_name(workflow_name: str,
                          session_token: str = Header(...)) -> Optional[WorkflowDTO]:
 
@@ -147,7 +149,7 @@ def get_workflow_by_name(workflow_name: str,
 
     return workflow
 
-@app.post("/api/workflow", tags=["analytics"])
+@app.post("/api/workflow", tags=["analytics :: workflow"])
 def create_workflow(workflow:      WorkflowDTO,
                     session_token: str = Header(...)) -> None:
     """
@@ -172,7 +174,7 @@ def create_workflow(workflow:      WorkflowDTO,
 
     return None
 
-@app.put("/api/workflow/{workflow_name}", tags=["analytics"])
+@app.put("/api/workflow/{workflow_name}", tags=["analytics :: workflow"])
 def modify_workflow(workflow_name: str,
                     workflow:      WorkflowDTO,
                     session_token: str = Header(...)) -> None:
@@ -197,7 +199,7 @@ def modify_workflow(workflow_name: str,
 
     return None
 
-@app.delete("/api/workflow/{workflow_name}", tags=["analytics"])
+@app.delete("/api/workflow/{workflow_name}", tags=["analytics :: workflow"])
 def delete_workflow(workflow_name: str,
                     session_token: str = Header(...)) -> None:
     """
@@ -221,10 +223,134 @@ def delete_workflow(workflow_name: str,
     return None
 
 ##################################
+# API: dataset
+##################################
+
+def _get_dataframe(contents: io.BytesIO) -> pd.DataFrame:
+
+    df = pd.read_csv(contents, sep=";", decimal = ",", encoding="utf-8") 
+    df.columns = [x.strip().lower().replace(" ","_") for x in df.columns]
+
+    return df
+
+@app.get("/api/dataset", tags=["analytics :: dataset"])
+def get_datasets(session_token: str = Header(...)) -> list[DatasetDTO]:
+
+    # Services
+    analytics = runtime.services.analytics
+
+    with runtime.transaction as t:
+        user = _get_user(t, session_token)
+        datasets = analytics.get_datasets(t, user)
+        
+    return datasets
+
+@app.get("/api/dataset/{dataset_name}", tags=["analytics :: dataset"])
+def get_dataset_by_name(dataset_name: str,
+                        session_token: str = Header(...)) -> Optional[DatasetDTO]:
+
+    # Services
+    analytics = runtime.services.analytics
+
+    with runtime.transaction as t:
+        user = _get_user(t, session_token)
+        dataset = analytics.get_dataset_by_name(t, user, dataset_name)
+        
+    return dataset
+
+@app.post("/api/dataset/{dataset_name}", tags=["analytics :: dataset"])
+def create_dataset(dataset_name: str,
+                   dataset: UploadFile = File(...),
+                   session_token: str = Header(...)) -> None:
+
+    # Services
+    analytics = runtime.services.analytics
+
+    with runtime.transaction as t:
+        user = _get_user(t, session_token)
+
+        try:
+            contents = io.BytesIO(dataset.file.read())
+            df = _get_dataframe(contents)
+
+            analytics.register_dataset(t, 
+                                       user    = user, 
+                                       name    = dataset_name,
+                                       dataset = DatasetDTO(name = dataset_name,
+                                                            n_rows    = df.shape[0],
+                                                            n_columns = df.shape[1],
+                                                            data      = df.to_dict("list")))
+            t.commit()
+        except Exception as e:
+            t.rollback()
+            raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                                detail = str(e))
+
+        finally:
+            dataset.file.close() 
+
+@app.put("/api/dataset/{dataset_name}", tags=["analytics :: dataset"])
+def modify_dataset(dataset_name: str,
+                   dataset: UploadFile = File(...),
+                   session_token: str = Header(...)) -> None:
+    """
+    Modifies an existing dataset
+    """
+
+    # Services
+    analytics = runtime.services.analytics
+
+    with runtime.transaction as t:
+        user = _get_user(t, session_token)
+
+        # Save modification
+        try:
+            contents = io.BytesIO(dataset.file.read())
+            df = _get_dataframe(contents)
+
+            analytics.register_dataset(t, 
+                                       user      = user, 
+                                       name      = dataset_name,
+                                       dataset   = DatasetDTO(name = dataset_name,
+                                                            n_rows    = df.shape[0],
+                                                            n_columns = df.shape[1],
+                                                            data      = df.to_dict("list")),
+                                       overwrite = True)
+            t.commit()
+        except Exception as e:
+            t.rollback()
+            raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                                detail = str(e))
+        finally:
+            dataset.file.close() 
+
+    return None
+
+@app.delete("/api/dataset/{dataset_name}", tags=["analytics :: dataset"])
+def delete_dataset(dataset_name: str,
+                   session_token: str = Header(...)) -> None:
+
+    # Services
+    analytics = runtime.services.analytics
+
+    with runtime.transaction as t:
+        user = _get_user(t, session_token)
+
+        try:
+            analytics.unregister_dataset(t, user, dataset_name)
+            t.commit()
+        except Exception as e:
+            t.rollback()
+            raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                                detail = str(e))
+
+    return None
+
+##################################
 # API: analysis
 ##################################
 
-@app.get("/api/analysis", tags=["analytics"])
+@app.get("/api/analysis", tags=["analytics::analysis"])
 def get_analysis(session_token: str = Header(...)) -> list[AnalysisDTO]:
 
     # Services
@@ -237,7 +363,7 @@ def get_analysis(session_token: str = Header(...)) -> list[AnalysisDTO]:
 
     return analysis
 
-@app.get("/api/analysis/{analysis_name}", tags=["analytics"])
+@app.get("/api/analysis/{analysis_name}", tags=["analytics::analysis"])
 def get_analysis_by_name(analysis_name: str,
                          session_token: str = Header(...)) -> Optional[AnalysisDTO]:
     # Services
@@ -251,7 +377,7 @@ def get_analysis_by_name(analysis_name: str,
     return analysis
 
 
-@app.post("/api/analysis", tags=["analytics"])
+@app.post("/api/analysis", tags=["analytics::analysis"])
 def create_analysis(analysis:      AnalysisDTO,
                     session_token: str = Header(...)) -> None:
     """
@@ -277,7 +403,7 @@ def create_analysis(analysis:      AnalysisDTO,
 
     return None
 
-@app.put("/api/analysis/{analysis_name}", tags=["analytics"])
+@app.put("/api/analysis/{analysis_name}", tags=["analytics::analysis"])
 def modify_analysis(analysis_name: str,
                     analysis:      AnalysisDTO,
                     session_token: str = Header(...)) -> None:
@@ -302,7 +428,7 @@ def modify_analysis(analysis_name: str,
 
     return None
 
-@app.delete("/api/analysis/{analysis_name}", tags=["analytics"])
+@app.delete("/api/analysis/{analysis_name}", tags=["analytics::analysis"])
 def delete_analysis(analysis_name: str,
                     session_token: str = Header(...)) -> None:
     """
@@ -325,7 +451,7 @@ def delete_analysis(analysis_name: str,
 
     return None
 
-@app.post("/api/analysis/{analysis_name}", tags=["analytics"])
+@app.post("/api/analysis/{analysis_name}", tags=["analytics::analysis"])
 def run_analysis(analysis_name: str,
                  run_setup:     RunSetupDTO,
                  session_token: str = Header(...)) -> None:

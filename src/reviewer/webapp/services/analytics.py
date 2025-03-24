@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from ..dto import *
 from ..dto import MethodRegistrationDTO
 from ..interfaces import AnalyticsService
-from ..models import WorkflowRepository, AnalysisRepository
+from ..models import WorkflowRepository, DatasetRepository, AnalysisRepository
 
 from ...framework.interface import IConfig
 from ...framework.workflow import Workflow
@@ -37,6 +37,7 @@ class DefaultAnalyticsService(AnalyticsService):
 
         self._w_repo = WorkflowRepository(workflow_dir = f"{work_dir}/workflows")
         self._a_repo = AnalysisRepository(analysis_dir = f"{work_dir}/analysis")
+        self._d_repo = DatasetRepository(data_dir      = f"{work_dir}/datasets")
 
         self._methods = {}
         self._register_methods(method_registry)
@@ -135,6 +136,55 @@ class DefaultAnalyticsService(AnalyticsService):
         self._w_repo.delete_workflow(t, 
                                      user_id       = user.user_id, 
                                      workflow_name = name) 
+
+    # Dataset 
+    @override
+    def get_datasets(self, t: Session, user: UserDTO) -> list[DatasetDTO]:
+        return self._d_repo.get_datasets(t, user.user_id)
+
+    @override
+    def get_dataset_by_name(self, 
+                            t: Session, 
+                            user: UserDTO, 
+                            dataset_name: str) -> Optional[DatasetDTO]:
+        return self._d_repo.get_dataset_by_name(t, user.user_id, dataset_name)
+
+    @override
+    def register_dataset(self,                               
+                         t:         Session,
+                         user:      UserDTO,
+                         dataset:   DatasetDTO,
+                         name:      str,
+                         overwrite: bool = False) -> None:
+
+        # Validate name
+        if dataset.name.lower() != name.lower():
+           raise Exception("Invalid dataset name")
+
+        # Store in repo
+        d_exists = self.get_dataset_by_name(t, user, dataset.name) is not None
+
+        if d_exists:
+            if not overwrite:
+               raise Exception("Dataset name already taken")
+
+            self._d_repo.modify_dataset(t, user.user_id, name, dataset)
+        else:
+            self._d_repo.add_dataset(t, user.user_id, dataset)
+
+    @override
+    def unregister_dataset(self,                               
+                           t:    Session,
+                           user: UserDTO,
+                           name: str) -> None:
+
+        # Find dataset
+        d = self.get_dataset_by_name(t, user, name)
+        if not d:
+            raise Exception("Dataset not found")
+
+        # Delete dataset
+        self._d_repo.delete_dataset(t, user.user_id, name)
 
     # Analysis
     def _validate_analysis_dto(self, analysis: AnalysisDTO) -> Analysis:

@@ -185,6 +185,34 @@ class AnalyticsService(Service):
                             name: str) -> None:
         raise NotImplementedError()
 
+    # Dataset 
+    @abstractmethod
+    def get_datasets(self, t: Session, user: UserDTO) -> list[DatasetDTO]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_dataset_by_name(self, 
+                            t: Session, 
+                            user: UserDTO, 
+                            dataset_name: str) -> Optional[DatasetDTO]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def register_dataset(self,                               
+                         t:         Session,
+                         user:      UserDTO,
+                         dataset:   DatasetDTO,
+                         name:      str,
+                         overwrite: bool = False) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def unregister_dataset(self,                               
+                           t:    Session,
+                           user: UserDTO,
+                           name: str) -> None:
+        raise NotImplementedError()
+
     # Analysis
     @abstractmethod
     def get_analysis(self, 

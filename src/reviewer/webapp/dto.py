@@ -68,7 +68,10 @@ class SessionTokenDTO:
 
 @dataclass
 class DatasetDTO:
-    ...
+    name:      str
+    n_columns: int 
+    n_rows:    int
+    data:      Optional[dict[str, list[Any]]] = None
 
 @dataclass 
 class MethodDTO:
@@ -76,6 +79,7 @@ class MethodDTO:
     description:   str
     classname:     str
     config:        dict[str, Any]
+
     in_workflows:  int = 0
     in_analysis:   int = 0
     total_results: int = 0

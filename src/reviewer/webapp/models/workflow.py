@@ -79,7 +79,7 @@ class WorkflowRepository(Repository):
                              workflow_name: str) -> Optional[WorkflowDTO]:
 
         """
-        Returns a single workflow by its name, if it w_exists
+        Returns a single workflow by its name, if it exists
         """
 
         user_wdir = f"{self._workflow_dir}/{user_id}"

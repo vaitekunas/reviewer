@@ -4,6 +4,8 @@ User data model and repository
 Is used to persistently store and represent a User.
 For transportation purposes UserDTO is used.
 """
+__all__ = ["UserRepository"]
+
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import mapped_column, Session
 import bcrypt

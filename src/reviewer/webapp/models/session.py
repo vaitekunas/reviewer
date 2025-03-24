@@ -4,6 +4,8 @@ User Session data model and repository
 Is used to persistently store and represent a user Session
 For transportation purposes SessionTokenDTO is used.
 """
+__all__ = ["UserSessionRepository"]
+
 import secrets
 from typing import Optional
 from datetime import datetime
