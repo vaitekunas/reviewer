@@ -4,7 +4,7 @@ __all__ = ["MethodID", "WorkflowID", "AnalysisID",
            "MethodSchema", "WorkflowSchema", "AnalysisSchema"]
 
 from enum import Enum
-from typing import Any, Type, TypeAlias
+from typing import Any, Type, TypeAlias, get_args
 from dataclasses import asdict, dataclass
 
 MethodID:        TypeAlias = str
@@ -16,9 +16,16 @@ AnalysisField:   TypeAlias = str
 
 @dataclass 
 class FieldSchema:
-    dtype: Type[Any] | Any
-    prefix: bool = False
+    dtype:       Type[Any] | Any
+    prefix:      bool = False
     description: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        dtypes = get_args(self.dtype) or [self.dtype]
+
+        return {"dtype":       " | ".join([str(x.__name__) for x in dtypes]),
+                "prefix":      self.prefix,
+                "description": self.description}
 
 @dataclass
 class AnalysisFields:
@@ -57,7 +64,7 @@ AnalysisResults: TypeAlias = dict[WorkflowID, WorkFlowResults]
 
 @dataclass
 class MethodSchema:
-    id:        MethodID
+    id:        MethodID | None
     module:    str
     classname: str
     config:    dict[str, Any]

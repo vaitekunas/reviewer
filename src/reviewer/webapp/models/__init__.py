@@ -4,6 +4,7 @@ __all__ = ["ORM_BASE",
            "WorkflowRepository",
            "DatasetRepository",
            "AnalysisRepository",
+           "ResultRepository",
            ]
            
 from sqlalchemy.orm import declarative_base
@@ -15,3 +16,4 @@ from .session  import *
 from .workflow import *
 from .dataset  import *
 from .analysis import *
+from .result   import *

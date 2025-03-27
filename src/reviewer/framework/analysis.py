@@ -166,6 +166,10 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
         try:
             analysis = Analysis(config = AnalysisConfig(**analysis_dict.config))
             analysis._id = analysis_dict.id or get_object_id(analysis)
+
+            for workflow_schema in analysis_dict.workflows:
+                analysis.add(Workflow.from_schema(workflow_schema))
+
         except:
             raise Exception("Could not initialize Analysis")
 

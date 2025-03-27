@@ -3,9 +3,9 @@ __all__ = ["LinePlotConfig", "LinePlot"]
 import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import asdict, dataclass
-from typing import Any, Generator, override
+from typing import Any, Generator, override, Callable
 
-from ...interface import IConfig, IDataset, IVisualizer
+from ...interface import IConfig, IDataset, IFigure, IVisualizer
 from ...aliases import AnalysisField, FieldSchema, Result, ResultName, ResultType
 
 
@@ -93,7 +93,8 @@ class LinePlot(IVisualizer[LinePlotConfig]):
     def visualize(self, 
                   data:    IDataset, 
                   results: dict[str, Result],
-                  palette: Generator[str, None, None]) -> list[Result]:
+                  palette: Generator[str, None, None],
+                  new_figure: Callable[[Any], IFigure]) -> list[Result]:
 
         cfg = self._config
 
@@ -150,5 +151,5 @@ class LinePlot(IVisualizer[LinePlotConfig]):
         return [Result(method_id   = self.id,
                        result_name = self._config.output_name,
                        result_type = ResultType.FIGURE,
-                       value       = fig)]
+                       value       = new_figure(fig))]
 

@@ -142,7 +142,10 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
                 organize_results(step_results)
 
             if isinstance(step, IVisualizer):
-                step_results = step.visualize(data, named_results, runtime.palette())
+                step_results = step.visualize(data, 
+                                              named_results, 
+                                              runtime.palette(),
+                                              runtime.new_figure)
                 organize_results(step_results)
 
         # Drop unnecessary columns
@@ -251,7 +254,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
                 step_config = step.get_default_config()
                 step_config.update(values = sdict.config)
                 step.configure(step_config)
-                step._id = sdict.id
+                step._id = sdict.id or get_object_id(step)
 
                 # Add to workflow
                 workflow.add(step)

@@ -1,4 +1,5 @@
-from .runtime import *
-from .dataset import *
+from .runtime  import *
+from .dataset  import *
+from .figure   import *
 from .workflow import *
 from .analysis import *

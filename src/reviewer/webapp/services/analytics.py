@@ -9,16 +9,16 @@ from typing import Optional, override, TypeVar
 from sqlalchemy.orm import Session 
 
 from ..dto import *
-from ..dto import MethodRegistrationDTO
 from ..interfaces import AnalyticsService
-from ..models import WorkflowRepository, DatasetRepository, AnalysisRepository
+from ..models import WorkflowRepository, DatasetRepository, AnalysisRepository, ResultRepository
 
 from ...framework.interface import IConfig
-from ...framework.workflow import Workflow
-from ...framework.analysis import Analysis
-from ...framework.dataset import Dataset
-from ...framework.runtime import Runtime as AnalysisRuntime
-from ...framework.aliases import WorkflowSchema, AnalysisSchema
+from ...framework.workflow  import Workflow
+from ...framework.analysis  import Analysis
+from ...framework.dataset   import Dataset
+from ...framework.figure    import Figure
+from ...framework.runtime   import Runtime as AnalysisRuntime
+from ...framework.aliases   import WorkflowSchema, AnalysisSchema
 
 
 T = TypeVar("T", bound=IConfig)
@@ -38,6 +38,7 @@ class DefaultAnalyticsService(AnalyticsService):
         self._w_repo = WorkflowRepository(workflow_dir = f"{work_dir}/workflows")
         self._a_repo = AnalysisRepository(analysis_dir = f"{work_dir}/analysis")
         self._d_repo = DatasetRepository(data_dir      = f"{work_dir}/datasets")
+        self._r_repo = ResultRepository(result_dir     = f"{work_dir}/results")
 
         self._methods = {}
         self._register_methods(method_registry)
@@ -209,6 +210,15 @@ class DefaultAnalyticsService(AnalyticsService):
         return self._a_repo.get_analysis_by_name(t, user.user_id, analysis_name)
 
     @override
+    def get_analysis_fields(self, analysis: AnalysisDTO) -> AnalysisFieldsDTO:
+        
+        analysis_schema = AnalysisSchema.from_dict(analysis.to_dict())
+        analyzer        = Analysis.from_schema(analysis_schema)
+
+        return AnalysisFieldsDTO(fields  = analyzer.get_fields(),
+                                 results = analyzer.get_results())
+
+    @override
     def register_analysis(self, 
                           t:         Session,
                           user:      UserDTO,
@@ -267,22 +277,98 @@ class DefaultAnalyticsService(AnalyticsService):
                      analysis_name: str,
                      dataset_name:  str,
                      mapping:       dict[str, str],
-                     analysis:      AnalysisDTO) -> ResultsDTO:
+                     analysis:      AnalysisDTO) -> Optional[RawResultsDTO]:
                      
-        # Initialize data
-        data = Dataset.new(fields = {})
+        # Get data
+        data = self.get_dataset_by_name(t, user, dataset_name)
+        if data is None or data.data is None:
+            return None
+
+        try:
+            dataset = Dataset.new(data.data)
+        except:
+            return None
+
+        # Prepare schema
+        analysis_schema    = AnalysisSchema.from_dict(analysis.to_dict())
+        analysis_schema.id = None
+        for w in analysis_schema.workflows:
+            w.id = None
+            for s in w.steps:
+                s.id = None
 
         # Prepare analyzer
-        analyzer = Analysis.from_schema(AnalysisSchema.from_dict(analysis.to_dict()))
+        analyzer = Analysis.from_schema(analysis_schema)
 
-        analysis_runtime = AnalysisRuntime(dataset_constructor = Dataset.new)
-        data_post, results = analyzer.run(runtime = analysis_runtime, 
-                                          data    = data, 
-                                          mapping = mapping)
+        analysis_runtime = AnalysisRuntime(dataset_constructor = Dataset.new,
+                                           figure_constructor  = Figure.new)
 
-        # @TODO: implement result saving using result repository
-        # @TODO: also save the analysis.json used to run it.
+        # Run analysis
+        _, results = analyzer.run(runtime = analysis_runtime, 
+                                  data    = dataset, 
+                                  mapping = mapping)
+
+        # Save results
+        self.register_results(t, 
+                              user, 
+                              name     = analysis_name,
+                              analysis = analyzer.to_schema(), 
+                              results  = results)
 
         return results
 
-        
+    # Result 
+    @override
+    def get_runs(self,
+                 t:      Session,
+                 user:   UserDTO) -> list[RunDTO]:
+
+        return self._r_repo.get_runs(t, 
+                                     user_id = user.user_id)
+
+    @override
+    def get_results(self,
+                    t:      Session,
+                    user:   UserDTO,
+                    run_id: int) -> Optional[ResultsDTO]:
+
+        return self._r_repo.get_results(t,
+                                        user_id = user.user_id,
+                                        run_id  = run_id)
+
+    @override
+    def get_result_by_name(self,
+                           t:      Session,
+                           user:   UserDTO,
+                           run_id: int,
+                           name :  str) -> Optional[ResultDTO]:
+
+        return self._r_repo.get_result_by_name(t, 
+                                               user_id     = user.user_id,
+                                               run_id      = run_id,
+                                               result_name = name)
+
+    @override
+    def register_results(self,
+                         t:        Session,
+                         user:     UserDTO,
+                         name:     str,
+                         analysis: AnalysisSchema,
+                         results:  RawResultsDTO) -> None:
+
+        self._r_repo.store_run(t, 
+                               user_id  = user.user_id, 
+                               name     = name,
+                               analysis = analysis, 
+                               results  = results)
+
+    @override
+    def unregister_results(self,
+                           t:      Session,
+                           user:   UserDTO,
+                           run_id: int) -> None:
+
+        self._r_repo.delete_run(t, 
+                                user_id = user.user_id, 
+                                run_id  = run_id)
+

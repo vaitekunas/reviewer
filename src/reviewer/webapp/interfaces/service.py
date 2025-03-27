@@ -228,6 +228,11 @@ class AnalyticsService(Service):
         raise NotImplementedError()
 
     @abstractmethod
+    def get_analysis_fields(self,
+                            analysis: AnalysisDTO) -> AnalysisFieldsDTO:
+        raise NotImplementedError()
+
+    @abstractmethod
     def register_analysis(self, 
                           t:         Session,
                           user:      UserDTO,
@@ -250,7 +255,44 @@ class AnalyticsService(Service):
                      analysis_name: str,
                      dataset_name:  str,
                      mapping:       dict[str, str],
-                     analysis:      AnalysisDTO) -> ResultsDTO:
+                     analysis:      AnalysisDTO) -> Optional[RawResultsDTO]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_runs(self,
+                 t:      Session,
+                 user:   UserDTO) -> list[RunDTO]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_results(self,
+                    t:      Session,
+                    user:   UserDTO,
+                    run_id: int) -> Optional[ResultsDTO]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_result_by_name(self,
+                           t:      Session,
+                           user:   UserDTO,
+                           run_id: int,
+                           name :  str) -> Optional[ResultDTO]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def register_results(self,
+                         t:        Session,
+                         user:     UserDTO,
+                         name:     str,
+                         analysis: AnalysisSchema,
+                         results:  RawResultsDTO) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def unregister_results(self,
+                           t:      Session,
+                           user:   UserDTO,
+                           run_id: int) -> None:
         raise NotImplementedError()
 
 

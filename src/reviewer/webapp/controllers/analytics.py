@@ -70,6 +70,7 @@ def get_methods() -> dict[MethodType, dict[str, MethodDTO]]:
             result[mt][m.name] = MethodDTO(name        = m.name,
                                            description = m.description,
                                            classname   = str(m.method_class.__name__).lower(),
+                                           required    = {k: v.to_dict() for k, v in m.required_fields.items()},
                                            config      = m.method_config().to_dict())
 
     return result
@@ -88,6 +89,7 @@ def get_methods_of_type(method_type: str) -> list[MethodDTO]:
         method = MethodDTO(name        = m.name,
                            description = m.description,
                            classname   = str(m.method_class.__name__).lower(),
+                           required    = {k: v.to_dict() for k, v in m.required_fields.items()},
                            config      = m.method_config().to_dict())
 
         methods.append(method)
@@ -114,6 +116,7 @@ def get_method(method_type: str, method_class: str) -> Optional[MethodDTO]:
     method = MethodDTO(name        = m.name,
                        description = m.description,
                        classname   = str(m.method_class.__name__).lower(),
+                       required    = {k: v.to_dict() for k, v in m.required_fields.items()},
                        config      = m.method_config().to_dict())
 
     return method
@@ -350,7 +353,7 @@ def delete_dataset(dataset_name: str,
 # API: analysis
 ##################################
 
-@app.get("/api/analysis", tags=["analytics::analysis"])
+@app.get("/api/analysis", tags=["analytics :: analysis"])
 def get_analysis(session_token: str = Header(...)) -> list[AnalysisDTO]:
 
     # Services
@@ -363,7 +366,7 @@ def get_analysis(session_token: str = Header(...)) -> list[AnalysisDTO]:
 
     return analysis
 
-@app.get("/api/analysis/{analysis_name}", tags=["analytics::analysis"])
+@app.get("/api/analysis/{analysis_name}", tags=["analytics :: analysis"])
 def get_analysis_by_name(analysis_name: str,
                          session_token: str = Header(...)) -> Optional[AnalysisDTO]:
     # Services
@@ -376,8 +379,15 @@ def get_analysis_by_name(analysis_name: str,
 
     return analysis
 
+@app.post("/api/analysis/requirements", tags=["analytics :: analysis"])
+def get_analysis_fields(analysis: AnalysisDTO) -> AnalysisFieldsDTO:
+                        
+    # Services
+    analytics = runtime.services.analytics
 
-@app.post("/api/analysis", tags=["analytics::analysis"])
+    return analytics.get_analysis_fields(analysis)
+
+@app.post("/api/analysis", tags=["analytics :: analysis"])
 def create_analysis(analysis:      AnalysisDTO,
                     session_token: str = Header(...)) -> None:
     """
@@ -403,7 +413,7 @@ def create_analysis(analysis:      AnalysisDTO,
 
     return None
 
-@app.put("/api/analysis/{analysis_name}", tags=["analytics::analysis"])
+@app.put("/api/analysis/{analysis_name}", tags=["analytics :: analysis"])
 def modify_analysis(analysis_name: str,
                     analysis:      AnalysisDTO,
                     session_token: str = Header(...)) -> None:
@@ -428,7 +438,7 @@ def modify_analysis(analysis_name: str,
 
     return None
 
-@app.delete("/api/analysis/{analysis_name}", tags=["analytics::analysis"])
+@app.delete("/api/analysis/{analysis_name}", tags=["analytics :: analysis"])
 def delete_analysis(analysis_name: str,
                     session_token: str = Header(...)) -> None:
     """
@@ -451,7 +461,7 @@ def delete_analysis(analysis_name: str,
 
     return None
 
-@app.post("/api/analysis/{analysis_name}", tags=["analytics::analysis"])
+@app.post("/api/analysis/{analysis_name}", tags=["analytics :: analysis"])
 def run_analysis(analysis_name: str,
                  run_setup:     RunSetupDTO,
                  session_token: str = Header(...)) -> None:
@@ -465,25 +475,66 @@ def run_analysis(analysis_name: str,
 
     # Workflows
     with runtime.transaction as t:
-        user     = _get_user(t, session_token)
+        user = _get_user(t, session_token)
 
         try:
-            dataset_name = run_setup.dataset_name
-            mapping      = run_setup.mapping
-            analysis     = run_setup.analysis
-
             analytics.run_analysis(t, 
                                    user          = user, 
                                    analysis_name = analysis_name,
-                                   dataset_name  = dataset_name, 
-                                   mapping       = mapping, 
-                                   analysis      = analysis)
-
+                                   dataset_name  = run_setup.dataset_name, 
+                                   mapping       = run_setup.mapping, 
+                                   analysis      = run_setup.analysis)
             t.commit()
         except Exception as e:
             t.rollback()
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
                                 detail = str(e))
+
+    return None
+
+##################################
+# API: results
+##################################
+
+@app.get("/api/results/{run_id}", tags=["analytics :: results"])
+def get_results(run_id: int,
+                session_token: str = Header(...)) -> Optional[ResultsDTO]:
+
+    # Services
+    analytics = runtime.services.analytics
+
+    with runtime.transaction as t:
+        user    = _get_user(t, session_token)
+        results = analytics.get_results(t, user, run_id)
+
+    return results
+
+@app.get("/api/results/{run_id}/{result_name}", tags=["analytics :: results"])
+def get_result_by_name(run_id: int,
+                       result_name: str,
+                       session_token: str = Header(...)) -> Optional[ResultDTO]:
+    # Services
+    analytics = runtime.services.analytics
+
+    with runtime.transaction as t:
+        user   = _get_user(t, session_token)
+        result = analytics.get_result_by_name(t, user, run_id, result_name)
+
+    return result
+
+@app.delete("/api/results/{run_id}", tags=["analytics :: results"])
+def delete_results(run_id: int,
+                   session_token: str = Header(...)) -> None:
+    """
+    Deletes all results of a run
+    """
+
+    # Services
+    analytics = runtime.services.analytics
+
+    with runtime.transaction as t:
+        user   = _get_user(t, session_token)
+        analytics.unregister_results(t, user, run_id)
 
     return None
 

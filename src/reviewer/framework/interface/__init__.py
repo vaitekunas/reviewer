@@ -9,3 +9,4 @@ from .ipredictor import *
 from .ivisualizer import *
 from .imethod import *
 from .idataset import *
+from .ifigure import *

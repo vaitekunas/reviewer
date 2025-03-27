@@ -145,11 +145,15 @@ class Dataset(IDataset):
     @property
     @override
     def fields(self) -> dict[str, Type[Any]]:
-        return {str(k): self._match_dtype(self._df[k].dtype) for k in self._df.columns}
+        return {str(k): self._match_dtype(self._df[k].dtype).pop() for k in self._df.columns}
 
     @override
     def copy(self) -> 'Dataset':
         return Dataset(self._df.copy())
+
+    @override
+    def to_dict(self) -> dict[str, list[Any]]:
+        return self._df.to_dict("list")
 
     @staticmethod
     def new(fields: dict[str, list[Any]]) -> 'Dataset':

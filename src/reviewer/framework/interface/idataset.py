@@ -53,8 +53,13 @@ class IDataset(ABC):
     def fields(self) -> dict[str, Type[Any]]:
         raise NotImplementedError("abstract method")
 
+    @abstractmethod
+    def to_dict(self) -> dict[str, list[Any]]:
+        raise NotImplementedError("abstract method")
+
     @staticmethod
     @abstractmethod
     def from_path(path: str) -> 'IDataset':
         raise NotImplementedError("abstract method")
+
 
