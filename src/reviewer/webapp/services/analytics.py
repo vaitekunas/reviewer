@@ -58,6 +58,21 @@ class DefaultAnalyticsService(AnalyticsService):
             self._methods[mt].append(registration)
             self._logger.info(f"Registering method '{entry['method_class_classname']:<25s}' (type '{mt.value}')")
 
+    # Statistics
+    @override 
+    def get_statistics(self, 
+                       t: Session,
+                       user: Optional[UserDTO]) -> StatisticsDTO:
+
+        user_id = None if not user else user.user_id
+
+        return StatisticsDTO(datasets  = self._d_repo.get_dataset_count(t, user_id),
+                             methods   = len([xi for x in self.get_methods().values() for xi in x]),
+                             workflows = self._w_repo.get_workflow_count(t, user_id),
+                             analysis  = self._a_repo.get_analysis_count(t, user_id),
+                             runs      = self._r_repo.get_run_count(t, user_id),
+                             results   = self._r_repo.get_result_count(t, user_id))
+
     # Methods
     @override
     def get_methods(self) -> dict[MethodType, list[MethodRegistrationDTO]]:

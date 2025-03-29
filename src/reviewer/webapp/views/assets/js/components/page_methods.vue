@@ -2,6 +2,7 @@
 
 <template>
   <div class="content-area">
+    Methods
 
   </div>
 </template>

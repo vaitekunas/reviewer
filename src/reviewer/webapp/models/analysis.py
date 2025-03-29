@@ -9,7 +9,7 @@ __all__ = ["AnalysisRepository"]
 
 import os
 import json
-from sqlalchemy import ForeignKey, Integer, String, func
+from sqlalchemy import ForeignKey, Integer, String, func, true
 from sqlalchemy.orm import mapped_column, Session
 from typing import Optional
 
@@ -38,6 +38,14 @@ class AnalysisRepository(Repository):
 
     def _get_clean_analysis_name(self, analysis_name: str) -> str:
         return analysis_name.strip().lower().replace(" ","_")
+
+    def get_analysis_count(self, 
+                           session: Session,
+                           user_id: Optional[int]) -> int:
+        return (session
+                .query(Analysis)
+                .filter(Analysis.user_id == user_id if user_id else true())
+                .count())
 
     def get_analysis(self,
                      session: Session,

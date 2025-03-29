@@ -3,7 +3,24 @@ var app = null;
 const global_data = {
   state: {
     router: null,
+    
+    // Icons 
+    // https://www.untitledui.com/free-icons/layout
+    icons: {
+      dashboard:    "dashboard",
+      methods:      "methods",
+      datasets:     "datasets",
+      workflows:    "workflows",
+      analysis:     "analysis",
+      run:          "run",
+      results:      "results",
+      api:          "api",
+      expander_out: "expander_out",
+      expander_in:  "expander_in"
+    },
+
   }
+
 };
 
 const initialize = async function() {
@@ -13,9 +30,12 @@ const initialize = async function() {
   // Initialize router
   const routes = [
     { path: "/",          component: "page-dashboard" },
+    { path: "/results",   component: "page-results" },
     { path: "/methods",   component: "page-methods" },
+    { path: "/datasets",  component: "page-datasets" },
     { path: "/workflows", component: "page-workflows" },
     { path: "/analysis",  component: "page-analysis" },
+    { path: "/run",       component: "page-run" },
   ];
 
   const router = new VueRouter({

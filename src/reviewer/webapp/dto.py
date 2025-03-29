@@ -26,6 +26,8 @@ __all__ = [ "MethodType",
 
             "ResultDTO",
             "ResultsDTO",
+
+            "StatisticsDTO",
            ]
 
 import importlib
@@ -187,4 +189,13 @@ class ResultsDTO:
     run_id:          int
     analysis_schema: AnalysisSchema
     results:         dict[WorkflowID, dict[MethodID, list[ResultDTO]]]
+
+@dataclass 
+class StatisticsDTO:
+    datasets:  int
+    methods:   int 
+    workflows: int 
+    analysis:  int
+    runs:      int 
+    results:   int
 

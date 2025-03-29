@@ -9,7 +9,7 @@ __all__ = ["ResultRepository"]
 
 import os
 import json
-from sqlalchemy import ForeignKey, Integer, String, and_, func
+from sqlalchemy import ForeignKey, Integer, String, and_, func, true
 from sqlalchemy.orm import mapped_column, Session
 from typing import Any, Optional
 
@@ -94,6 +94,23 @@ class ResultRepository(Repository):
             value = f.read()
 
         return value
+
+    def get_run_count(self, 
+                      session: Session,
+                      user_id: Optional[int]) -> int:
+
+        return (session
+                .query(Run)
+                .filter(Run.user_id == user_id if user_id else true())
+                .count())
+
+    def get_result_count(self, 
+                         session: Session,
+                         user_id: Optional[int]) -> int:
+        return (session
+                .query(Result)
+                .filter(Result.user_id == user_id if user_id else true())
+                .count())
 
     def get_runs(self,
                  session: Session,

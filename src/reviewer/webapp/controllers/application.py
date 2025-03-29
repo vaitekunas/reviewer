@@ -3,6 +3,7 @@ Controllers for the application service.
 """
 from typing import Optional
 from pydantic import SecretStr
+from fastapi import Response, Cookie
 from fastapi import HTTPException, Header, status
 
 from .. import app, runtime
@@ -50,7 +51,9 @@ def register(username: str, password: SecretStr) -> Optional[UserDTO]:
 
 
 @app.post("/api/session", tags=["application"])
-def login(username: str, password: SecretStr) -> Optional[SessionTokenDTO]:
+def login(username: str, 
+          password: SecretStr,
+          response: Response) -> Optional[SessionTokenDTO]:
     """
     Creates a user session.
 
@@ -86,13 +89,16 @@ def login(username: str, password: SecretStr) -> Optional[SessionTokenDTO]:
             
         t.commit()
 
+        response.set_cookie(key='token', value=token.token, httponly=True)
         logger.warning(f"User '{token.user_id}' logged in")
 
         return token
 
 
 @app.delete("/api/session", tags=["application"])
-def logout(session_token: str = Header(...)) -> None:
+def logout(response: Response,
+           session_token: str = Header(...)) -> None:
+           
     """
     Deletes an existing user session.
 
@@ -125,6 +131,7 @@ def logout(session_token: str = Header(...)) -> None:
 
         t.commit()
 
+        response.delete_cookie(key="token")
         logger.warning(f"User '{token.user_id}' logged out")
 
 

@@ -1,8 +1,9 @@
-<name>page-workflows</name>
+<name>page-results</name>
 
 <template>
   <div class="content-area">
-    Workflows
+
+    Results
 
   </div>
 </template>

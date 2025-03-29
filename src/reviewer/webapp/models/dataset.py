@@ -9,7 +9,7 @@ __all__ = ["DatasetRepository"]
 import os
 import pandas as pd
 from pandas import DataFrame
-from sqlalchemy import ForeignKey, Integer, String, func
+from sqlalchemy import ForeignKey, Integer, String, func, true
 from sqlalchemy.orm import mapped_column, Session
 from typing import Optional
 
@@ -40,6 +40,12 @@ class DatasetRepository(Repository):
 
     def _get_clean_dataset_name(self, dataset_name: str) -> str:
         return dataset_name.strip().lower().replace(" ","_")
+
+    def get_dataset_count(self, session: Session, user_id: Optional[int]) -> int:
+        return (session
+                .query(Dataset)
+                .filter(Dataset.user_id == user_id if user_id else true())
+                .count())
 
     def get_datasets(self,
                      session: Session,

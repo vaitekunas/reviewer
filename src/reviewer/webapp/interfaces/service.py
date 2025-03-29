@@ -155,6 +155,11 @@ class ApplicationService(Service):
 
 class AnalyticsService(Service):
 
+    # Statistics
+    @abstractmethod
+    def get_statistics(self, t: Session, user: Optional[UserDTO]) -> StatisticsDTO:
+        raise NotImplementedError()
+
     # Methods
     @abstractmethod
     def get_methods(self) -> dict[MethodType, list[MethodRegistrationDTO]]:

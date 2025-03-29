@@ -538,3 +538,20 @@ def delete_results(run_id: int,
 
     return None
 
+##################################
+# API: method
+##################################
+
+@app.get("/api/statistics", tags=["statistics"])
+def get_statistics(session_token: str | None = Header(None)) -> StatisticsDTO:
+
+    # Services
+    analytics = runtime.services.analytics
+
+    with runtime.transaction as t:
+        if session_token:
+            user   = _get_user(t, session_token)
+        else:
+            user = None
+
+        return analytics.get_statistics(t, user)

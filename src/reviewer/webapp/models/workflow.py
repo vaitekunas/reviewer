@@ -9,7 +9,7 @@ __all__ = ["WorkflowRepository"]
 
 import os
 import json
-from sqlalchemy import ForeignKey, Integer, String, func
+from sqlalchemy import ForeignKey, Integer, String, func, true
 from sqlalchemy.orm import mapped_column, Session
 from typing import Optional
 
@@ -38,6 +38,14 @@ class WorkflowRepository(Repository):
 
     def _get_clean_workflow_name(self, workflow_name: str) -> str:
         return workflow_name.strip().lower().replace(" ","_")
+
+    def get_workflow_count(self, 
+                           session: Session,
+                           user_id: Optional[int]) -> int:
+        return (session
+                .query(Workflow)
+                .filter(Workflow.user_id == user_id if user_id else true())
+                .count())
 
     def get_workflows(self,
                       session: Session,

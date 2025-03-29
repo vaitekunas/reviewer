@@ -84,3 +84,33 @@ const api_logout = async function() {
 
 };
 
+const api_statistics = async function() {
+
+  var result = fetch("/api/statistics", {
+    method: "GET",
+    headers: api_headers
+  })
+    .then(response => response.json())
+    .catch(error => {
+      console.error(error);
+      return {};
+    })
+
+  return result;
+};
+
+const api_datasets = async function() {
+
+  var result = fetch("/api/dataset", {
+    method: "GET",
+    headers: get_auth_headers()
+  })
+    .then(response => response.json())
+    .catch(error => {
+      console.error(error);
+      return {};
+    })
+
+  return result;
+};
+
