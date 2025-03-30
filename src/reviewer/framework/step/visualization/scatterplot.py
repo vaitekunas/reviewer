@@ -1,5 +1,6 @@
 __all__ = ["ScatterPlotConfig", "ScatterPlot"]
 
+from matplotlib.colors import Colormap
 import matplotlib.pyplot as plt
 from dataclasses import asdict, dataclass
 from typing import Any, Generator, override, Callable
@@ -95,9 +96,10 @@ class ScatterPlot(IVisualizer[ScatterPlotConfig]):
     # Visualizer
     @override
     def visualize(self, 
-                  data:    IDataset, 
-                  results: dict[str, Result],
-                  palette: Generator[str, None, None],
+                  data:       IDataset, 
+                  results:    dict[str, Result],
+                  palette:    Generator[str, None, None],
+                  colormap:   Colormap,
                   new_figure: Callable[[Any], IFigure]) -> list[Result]:
 
         cfg = self._config

@@ -144,6 +144,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
                 step_results = step.visualize(data, 
                                               named_results, 
                                               runtime.palette(),
+                                              runtime.colormap,
                                               runtime.new_figure)
                 organize_results(step_results)
 

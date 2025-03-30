@@ -1,6 +1,7 @@
 __all__ = ["IVisualizer"]
 
 from abc import abstractmethod
+from matplotlib.colors import Colormap
 from typing import Any, Callable, Generator, TypeVar
 
 from .imethod import IMethod
@@ -21,5 +22,6 @@ class IVisualizer(IMethod[T], IResultCreator):
                   data:       IDataset, 
                   results:    dict[str, Result],
                   palette:    Generator[str, None, None],
+                  colormap:   Colormap,
                   new_figure: Callable[[Any], IFigure]) -> list[Result]:
         raise NotImplementedError("abstract method")

@@ -1,5 +1,6 @@
 __all__ = ["WordCloudConfig", "WordCloud"]
 
+from matplotlib.colors import Colormap
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud as WordCloudFigure
 from dataclasses import asdict, dataclass
@@ -77,9 +78,10 @@ class WordCloud(IVisualizer[WordCloudConfig]):
     # Visualizer
     @override
     def visualize(self, 
-                  data:    IDataset, 
-                  results: dict[str, Result],
-                  palette: Generator[str, None, None],
+                  data:       IDataset, 
+                  results:    dict[str, Result],
+                  palette:    Generator[str, None, None],
+                  colormap:   Colormap,
                   new_figure: Callable[[Any], IFigure]) -> list[Result]:
 
         cfg = self._config
@@ -101,6 +103,7 @@ class WordCloud(IVisualizer[WordCloudConfig]):
 
         wordcloud = (WordCloudFigure(width            = cfg.figure_width, 
                                      height           = cfg.figure_height,
+                                     colormap         = colormap,
                                      background_color = cfg.figure_bg)
                         .generate(text))
 

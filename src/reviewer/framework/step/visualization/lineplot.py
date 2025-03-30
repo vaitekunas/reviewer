@@ -1,5 +1,6 @@
 __all__ = ["LinePlotConfig", "LinePlot"]
 
+from matplotlib.colors import Colormap
 import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import asdict, dataclass
@@ -91,9 +92,10 @@ class LinePlot(IVisualizer[LinePlotConfig]):
     # Visualizer
     @override
     def visualize(self, 
-                  data:    IDataset, 
-                  results: dict[str, Result],
-                  palette: Generator[str, None, None],
+                  data:       IDataset, 
+                  results:    dict[str, Result],
+                  palette:    Generator[str, None, None],
+                  colormap:   Colormap,
                   new_figure: Callable[[Any], IFigure]) -> list[Result]:
 
         cfg = self._config

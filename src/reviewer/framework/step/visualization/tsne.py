@@ -1,5 +1,6 @@
 __all__ = ["TSneVisualizationConfig", "TSneVisualization"]
 
+from matplotlib.colors import Colormap
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
@@ -88,9 +89,10 @@ class TSneVisualization(IVisualizer[TSneVisualizationConfig]):
     # Visualizer
     @override
     def visualize(self, 
-                  data: IDataset, 
-                  results: dict[str, Result],
-                  palette: Generator[str, None, None],
+                  data:       IDataset, 
+                  results:    dict[str, Result],
+                  palette:    Generator[str, None, None],
+                  colormap:   Colormap,
                   new_figure: Callable[[Any], IFigure]) -> list[Result]:
 
         cfg = self._config
