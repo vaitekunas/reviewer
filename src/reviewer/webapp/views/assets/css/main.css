@@ -5,7 +5,9 @@
   --min-padding: 0.25rem;
   --card-padding: 0.5rem;
 
-  --border-radius: 3px;
+  --border-radius: 5px;
+  --step-border-radius: 5px;
+  --workflow-border-radius: 5px;
 
   --input-border: 1px solid lightgray;
   --card-border: 1px solid lightgray;
@@ -24,7 +26,9 @@
   --dashboard-card-width: 250px;
   --dashboard-card-height: 250px;
 
-  --run-settings-width: 250px;
+  --run-settings-width: 300px;
+  --uploader-width: 125px;
+
 
   --gray-out-color: rgba(0, 0, 0, 0.04);
 
@@ -62,7 +66,7 @@ body {
   width: 100vw;
   height: 100vh;
   font-family: sans-serif;
-  color: var(--color-text);
+  color: var(--color-dark-shades);
   background: var(--color-light-shades);
   font-family: "Comfortaa", "sans-serif";
 }
@@ -72,11 +76,12 @@ input, select, textarea {
   padding: 0.45rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  background: var(--color-light-shades);
+  background: var(--color-dark-shades);
+  color: var(--color-light-accent);
   border: none;
   width: 168px;
   outline: none;
-  border-bottom: 1px solid var(--color-light-accent);
+  border-bottom: 1px solid var(--color-dark-shades);
 }
 
 input.short {
@@ -85,6 +90,14 @@ input.short {
 
 input[type="checkbox"] {
   border: none;
+}
+
+optgroup {
+  color: var(--color-light-shades);
+}
+
+option {
+  color: var(--color-primary);
 }
 
 .search {
@@ -121,8 +134,8 @@ textarea {
 select {
   width: 185px;
   cursor: pointer;
-  color: var(--color-light-shades);
-  background: var(--color-light-accent);
+  color: var(--color-light-accent);
+  background: var(--color-dark-shades);
   border-radius: var(--border-radius);
 }
 
@@ -135,7 +148,7 @@ textarea {
 }
 
 ::placeholder {
-  color: var(--color-light-accent);
+  color: lightgray;
   opacity: 1;
 }
 
@@ -391,21 +404,35 @@ button.extract {
 }
 
 .card {
+  position: relative;
   width: var(--run-settings-width);
   min-height: 50px;
   border-radius: 5px;
-  background-color: var(--color-primary);
+  background-color: var(--color-dark-shades);
+  color: var(--color-dark-accent);
   padding: 1rem;
   box-sizing: border-box;
+  box-shadow: var(--shadow);
 }
 
 .card + .card {
   margin-top: 0.5rem;
 }
 
+.card select,input {
+  width: 100%;
+}
+
+.card-icon {
+  display: inline-block;
+  width: var(--side-icon-size);
+  height: var(--side-icon-size);
+  color: var(--color-light-accent);
+}
+
 .card-title {
   font-size: 1.15em;
-  margin-bottom: 0.25rem;
+  margin-bottom: 1rem;
   font-weight: bold;
 }
 
@@ -427,12 +454,58 @@ button.extract {
   box-sizing: border-box;
 }
 
+.run-buttons {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.run-buttons button + button {
+  margin-left: 0.25rem;
+}
+
+.dataset-chooser {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-dark-accent);
+}
+
+.dataset-uploader {
+  width: var(--uploader-width);
+  border: 1px dashed var(--color-dark-shades);
+  border-radius: var(--border-radius);
+  color: var(--color-primary);
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.dataset-uploader-button {
+}
+
+#dataset-input {
+  display: none;
+}
+
+.analysis-chooser-container {
+  width: 100%;
+}
+
+.analysis-chooser {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-dark-accent);
+}
+
 .dashboard-content {
   display: flex;
   width: 100%;
   height: 100%;
 }
-
 
 .dashboard-welcome {
   min-width: var(--run-settings-width);
@@ -542,10 +615,10 @@ button.extract {
   color: var(--card-color-3);
 }
 
-.dashboard-card.analysis {
+.dashboard-card.analyses {
   background-color: var(--card-color-4);
 }
-.dashboard-card.analysis svg {
+.dashboard-card.analyses svg {
   color: var(--card-color-4);
 }
 
@@ -630,8 +703,185 @@ button.extract {
   opacity: 1;
   transition: opacity 200ms;
   white-space: nowrap;
+  overflow-x: hidden;
 }
 
 .side-button-text.hidden {
   opacity: 0;
+}
+
+.step {
+  position: relative;
+  padding: 1rem;
+  border-radius: var(--step-border-radius);
+  box-sizing: border-box;
+  background: var(--color-primary);
+  color: var(--color-light-accent);
+  border: 2px solid var(--color-dark-shades);
+  cursor: pointer;
+  font-size: 0.85em;
+}
+
+.step.preprocessing, step.embedding {
+  background: var(--color-light-accent);
+  color: var(--color-dark-shades);
+}
+
+.step.description, .step.trend, .step.classification, .step.recommendation {
+  background: var(--color-dark-shades);
+  color: var(--color-light-shades);
+}
+
+.step.evaluation {
+  background: var(--color-danger);
+  color: var(--color-light-shades);
+}
+
+.step.visualization {
+  background: var(--color-primary);
+  color: var(--color-light-shades);
+}
+
+.step-icon {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 16px;
+  height: 16px;
+  color: var(--color-light-shades);
+}
+
+.step-config {
+
+}
+
+.step-config-head th {
+  font-weight: bold;
+  padding-bottom: 0.5rem;
+}
+
+.step-config-key {
+
+}
+
+.step-config-input {
+  width: 75;
+}
+
+.add-button {
+  background: var(--color-light-shades);
+  color: var(--color-primary);
+  filter: brightness(98%);
+  border: 1px dotted var(--color-primary);
+}
+
+.workflow {
+  padding: 1rem;
+  border-radius: var(--workflow-border-radius);
+  border: 1px dashed var(--color-primary);
+  box-sizing: border-box;
+}
+
+.workflow-config {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin-right: 2rem;
+  margin-top: -1rem;
+}
+
+.workflow-config input {
+  background: none;
+  color: var(--color-dark-shades);
+}
+
+.workflow-config input+input {
+  border-bottom: none;
+}
+
+.workflow-steps {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.workflow-steps .step + .step {
+  margin-left: 0.25rem;
+}
+
+.analysis {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.analysis-workflows {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.analysis-workflows .workflow+.workflow {
+  margin-top: 0.5rem;
+}
+
+.mapping {
+  box-sizing: border-box;
+}
+
+.mapping-requirement {
+  width: 50%;
+  overflow-x: hidden;
+}
+
+.mapping-requirement.missing {
+  color: var(--color-danger);
+}
+
+.mapping-requirement-input {
+  width: calc(var(--run-settings-width) / 2);
+  box-sizing: border-box;
+}
+
+.mapping-requirement-input select,input {
+  width: calc(var(--run-settings-width) / 2);
+  box-sizing: border-box;
+}
+
+.separator-or {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.run-icon-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  heigh: 100%;
+}
+.run-icon {
+  color: var(--color-light-shades);
+  filter: brightness(98%);
+  width: 500px;
+  height: 500px;
+  position: static;
+  top: 50%;
+  left: var(--run-settings-width);
+  z-index: -1;
+  margin-left: 150px;
+}
+
+.run-saver {
+  width: 100%;
+  text-align: center;
 }

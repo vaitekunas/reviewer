@@ -199,7 +199,8 @@ class AnalyticsService(Service):
     def get_dataset_by_name(self, 
                             t: Session, 
                             user: UserDTO, 
-                            dataset_name: str) -> Optional[DatasetDTO]:
+                            dataset_name: str,
+                            with_data: bool = True) -> Optional[DatasetDTO]:
         raise NotImplementedError()
 
     @abstractmethod

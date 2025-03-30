@@ -1,9 +1,10 @@
 <name>card</name>
 
 <template>
-  <div class="card" >
+  <div class="card" :class="classname">
 
     <div class="card-title">
+      <icon class="card-icon" :icon="icon"></icon>
       {{title}}
     </div>
     <div>
@@ -24,5 +25,5 @@ data: function(){
 methods: {
 },
 
-props: ["title", "class"]
+props: ["title", "classname", "icon"]
 </javascript>

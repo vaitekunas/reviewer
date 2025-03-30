@@ -25,7 +25,8 @@ class Dataset(ORM_BASE):
     user_id   = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
     name      = mapped_column(String,  nullable=False)
     n_rows    = mapped_column(Integer, nullable=False)
-    n_columns = mapped_column(String,  nullable=False)
+    n_columns = mapped_column(Integer, nullable=False)
+    columns   = mapped_column(String,  nullable=False)
 
 
 class DatasetRepository(Repository):
@@ -60,6 +61,7 @@ class DatasetRepository(Repository):
         ds = (session
                 .query(Dataset)
                 .filter(Dataset.user_id == user_id)
+                .order_by(Dataset.name)
                 .all())
 
         datasets = []
@@ -75,14 +77,16 @@ class DatasetRepository(Repository):
             datasets.append(DatasetDTO(name      = d.name,
                                        n_rows    = d.n_rows,
                                        n_columns = d.n_columns,
+                                       columns   = d.columns,
                                        data      = None))
 
         return datasets
 
     def get_dataset_by_name(self,
-                            session: Session,
-                            user_id: int,
-                            dataset_name: str) -> Optional[DatasetDTO]:
+                            session:      Session,
+                            user_id:      int,
+                            dataset_name: str,
+                            with_data:    bool = True) -> Optional[DatasetDTO]:
 
         """
         Returns a single dataset by its name, if it exists
@@ -107,13 +111,18 @@ class DatasetRepository(Repository):
             return None
 
         # Load csv file
-        df = pd.read_csv(dpath, sep=";", decimal=",", encoding="utf-8").head(10)
+        if with_data:
+            df = pd.read_csv(dpath, sep=";", decimal=",", encoding="utf-8").head(10)
+            data = df.to_dict("list")
+        else:
+            data = None
 
         # Create DTO with data
         dataset = DatasetDTO(name      = d.name,
                              n_rows    = d.n_rows,
                              n_columns = d.n_columns,
-                             data      = df.to_dict("list"))
+                             columns   = d.columns.split(","),
+                             data      = data)
 
         return dataset
 
@@ -158,6 +167,7 @@ class DatasetRepository(Repository):
         # Create database record
         d = Dataset(user_id   = user_id,
                     name      = dataset.name,
+                    columns   = ",".join([str(x) for x in df.columns]),
                     n_rows    = df.shape[0],
                     n_columns = df.shape[1])
 
@@ -202,6 +212,7 @@ class DatasetRepository(Repository):
         # Update data record
         d.n_rows    = df.shape[0]
         d.n_columns = df.shape[1]
+        d.columns   = ",".join([str(x) for x in df.columns])
         
         session.flush()
 

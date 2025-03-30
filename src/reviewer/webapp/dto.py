@@ -88,6 +88,7 @@ class DatasetDTO:
     name:      str
     n_columns: int 
     n_rows:    int
+    columns:   list[str]
     data:      Optional[dict[str, list[Any]]] = None
 
 @dataclass 
@@ -128,11 +129,13 @@ class MethodRegistrationDTO:
 
 @dataclass 
 class MethodDTO:
-    name:          str
-    description:   str
-    classname:     str
-    config:        dict[str, dict[str, Any]]
-    required:      dict[str, str]
+    name:        str
+    description: str
+    module:      str
+    classname:   str
+    method_type: MethodType
+    config:      dict[str, Any]
+    required:    dict[str, dict[str, Any]]
 
 @dataclass 
 class WorkflowDTO:

@@ -4,13 +4,13 @@
   <div class="sidebar" :class="{expanded: expanded, hidden: !logged_in}">
 
     <div class="sidebar-tabs">
+      <side-button :icon="state.icons.dashboard" text="Dashboard" url="/"          :expanded="expanded" v-on:clicked="$emit('select_page', 'Review Analytics')"></side-button>
       <side-button :icon="state.icons.methods"   text="Methods"   url="/methods"   :expanded="expanded" v-on:clicked="$emit('select_page', 'Methods')"></side-button>
       <side-button :icon="state.icons.datasets"  text="Datasets"  url="/datasets"  :expanded="expanded" v-on:clicked="$emit('select_page', 'Datasets')"></side-button>
       <side-button :icon="state.icons.workflows" text="Workflows" url="/workflows" :expanded="expanded" v-on:clicked="$emit('select_page', 'Workflows')"></side-button>
-      <side-button :icon="state.icons.analysis"  text="Analysis"  url="/analysis"  :expanded="expanded" v-on:clicked="$emit('select_page', 'Analysis')"></side-button>
+      <side-button :icon="state.icons.analysis"  text="Analyses"  url="/analysis"  :expanded="expanded" v-on:clicked="$emit('select_page', 'Analyses')"></side-button>
       <side-button :icon="state.icons.results"   text="Results "  url="/results"   :expanded="expanded" v-on:clicked="$emit('select_page', 'Results')"></side-button>
-      <side-button :icon="state.icons.run"       text="Run"       url="/run"       :expanded="expanded" v-on:clicked="$emit('select_page', 'Run')"></side-button>
-      <side-button :icon="state.icons.dashboard" text="Dashboard" url="/"          :expanded="expanded" v-on:clicked="$emit('select_page', 'Review Analytics')"></side-button>
+      <side-button :icon="state.icons.run"       text="Analyze"   url="/run"       :expanded="expanded" v-on:clicked="$emit('select_page', 'Analyze')"></side-button>
     </div>
     <div class="sidebar-tabs">
       <side-button :icon="state.icons.api" text="REST API"  url="" v-on:clicked="window.open('/docs','_blank')" :expanded="expanded"></side-button>

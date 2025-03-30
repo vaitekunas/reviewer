@@ -22,9 +22,10 @@ __all__ = ["get_method_types",
            ]
 
 import io
+from fastapi.responses import JSONResponse
 import pandas as pd
 from typing import Optional
-from fastapi import File, HTTPException, Header, UploadFile, status
+from fastapi import File, HTTPException, Header, Response, UploadFile, status
 from sqlalchemy.orm.session import Session
 
 from .. import app, runtime
@@ -69,7 +70,9 @@ def get_methods() -> dict[MethodType, dict[str, MethodDTO]]:
         for m in mregistrations:
             result[mt][m.name] = MethodDTO(name        = m.name,
                                            description = m.description,
-                                           classname   = str(m.method_class.__name__).lower(),
+                                           module      = str(m.method_class.__module__),
+                                           classname   = str(m.method_class.__name__),
+                                           method_type = mtype,
                                            required    = {k: v.to_dict() for k, v in m.required_fields.items()},
                                            config      = m.method_config().to_dict())
 
@@ -88,7 +91,9 @@ def get_methods_of_type(method_type: str) -> list[MethodDTO]:
     for m in runtime.services.analytics.get_methods().get(mt[0], []):
         method = MethodDTO(name        = m.name,
                            description = m.description,
+                           module      = str(m.method_class.__module__),
                            classname   = str(m.method_class.__name__).lower(),
+                           method_type = mt[0],
                            required    = {k: v.to_dict() for k, v in m.required_fields.items()},
                            config      = m.method_config().to_dict())
 
@@ -115,7 +120,9 @@ def get_method(method_type: str, method_class: str) -> Optional[MethodDTO]:
     m = methods[0]
     method = MethodDTO(name        = m.name,
                        description = m.description,
+                       module      = str(m.method_class.__module__),
                        classname   = str(m.method_class.__name__).lower(),
+                       method_type = mt[0],
                        required    = {k: v.to_dict() for k, v in m.required_fields.items()},
                        config      = m.method_config().to_dict())
 
@@ -257,14 +264,14 @@ def get_dataset_by_name(dataset_name: str,
 
     with runtime.transaction as t:
         user = _get_user(t, session_token)
-        dataset = analytics.get_dataset_by_name(t, user, dataset_name)
+        dataset = analytics.get_dataset_by_name(t, user, dataset_name, with_data=False)
         
     return dataset
 
 @app.post("/api/dataset/{dataset_name}", tags=["analytics :: dataset"])
 def create_dataset(dataset_name: str,
                    dataset: UploadFile = File(...),
-                   session_token: str = Header(...)) -> None:
+                   session_token: str = Header(...)) -> Optional[DatasetDTO]:
 
     # Services
     analytics = runtime.services.analytics
@@ -276,14 +283,22 @@ def create_dataset(dataset_name: str,
             contents = io.BytesIO(dataset.file.read())
             df = _get_dataframe(contents)
 
+            dataset_dto = DatasetDTO(name      = dataset_name,
+                                     n_rows    = df.shape[0],
+                                     n_columns = df.shape[1],
+                                     columns   = [str(x) for x in df.columns],
+                                     data      = df.to_dict("list"))
+
             analytics.register_dataset(t, 
                                        user    = user, 
                                        name    = dataset_name,
-                                       dataset = DatasetDTO(name = dataset_name,
-                                                            n_rows    = df.shape[0],
-                                                            n_columns = df.shape[1],
-                                                            data      = df.to_dict("list")))
+                                       dataset = dataset_dto)
             t.commit()
+
+            dataset_dto.data = None
+
+            return dataset_dto
+
         except Exception as e:
             t.rollback()
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
@@ -317,6 +332,7 @@ def modify_dataset(dataset_name: str,
                                        dataset   = DatasetDTO(name = dataset_name,
                                                             n_rows    = df.shape[0],
                                                             n_columns = df.shape[1],
+                                                            columns   = [str(x) for x in df.columns],
                                                             data      = df.to_dict("list")),
                                        overwrite = True)
             t.commit()

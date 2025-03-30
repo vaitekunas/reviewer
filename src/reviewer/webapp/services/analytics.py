@@ -162,8 +162,13 @@ class DefaultAnalyticsService(AnalyticsService):
     def get_dataset_by_name(self, 
                             t: Session, 
                             user: UserDTO, 
-                            dataset_name: str) -> Optional[DatasetDTO]:
-        return self._d_repo.get_dataset_by_name(t, user.user_id, dataset_name)
+                            dataset_name: str,
+                            with_data: bool = True) -> Optional[DatasetDTO]:
+
+        return self._d_repo.get_dataset_by_name(t, 
+                                                user.user_id, 
+                                                dataset_name, 
+                                                with_data = with_data)
 
     @override
     def register_dataset(self,                               

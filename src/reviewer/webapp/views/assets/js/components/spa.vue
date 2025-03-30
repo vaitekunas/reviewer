@@ -54,7 +54,7 @@ methods: {
 
     if(this.logged_in){
       this.state.router.push("/analysis");
-      this.toolbar_title = "Analysis";
+      this.toolbar_title = "Analyses";
     }else{
       this.state.router.push("/");
       this.toolbar_title = "Review Analytics";

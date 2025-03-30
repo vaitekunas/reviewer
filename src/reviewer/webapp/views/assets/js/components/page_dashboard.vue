@@ -19,7 +19,7 @@
           </div>
 
           <div class="dashboard-row">
-            <dashboard-card title="Analysis" :count="count_analysis" classname="analysis" url="/analysis" :icon="state.icons.analysis" :logged_in="logged_in"></dashboard-card>
+            <dashboard-card title="Analyses" :count="count_analysis" classname="analyses" url="/analysis" :icon="state.icons.analysis" :logged_in="logged_in"></dashboard-card>
             <dashboard-card title="Runs"     :count="count_runs"     classname="runs"     url="/run"      :icon="state.icons.run"      :logged_in="logged_in"></dashboard-card>
             <dashboard-card title="Results"  :count="count_results"  classname="results"  url="/results"  :icon="state.icons.results"  :logged_in="logged_in"></dashboard-card>
           </div>
