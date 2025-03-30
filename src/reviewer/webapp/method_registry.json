@@ -99,6 +99,15 @@
     "method_class_classname": "NaiveBayes"
   },
   {
+    "name": "Large Language Model",
+    "description": "Binary classification using LLM.",
+    "method_type": "llm",
+    "method_config_module": "reviewer.webapp.extension.llm_methods",
+    "method_config_classname": "LLMPredictorConfig",
+    "method_class_module": "reviewer.webapp.extension.llm_methods",
+    "method_class_classname": "LLMPredictor"
+  },
+  {
     "name": "Collaborative Filtering",
     "description": "Product recommendation using collaborative filtering.",
     "method_type": "recommendation",

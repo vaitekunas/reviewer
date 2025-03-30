@@ -57,6 +57,7 @@ class MethodType(Enum):
     RECOMMENDER           = "recommendation"
     EVALUATION_METRIC     = "evaluation"
     VISUALIZATION         = "visualization"
+    LLM                   = "llm"
 
 # Generics
 T = TypeVar("T", bound = IConfig)

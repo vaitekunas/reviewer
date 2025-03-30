@@ -20,7 +20,7 @@ class SVM(BinaryClassifier):
     def __init__(self, config: SVMConfig | None = None) -> None:
         super().__init__(config)
 
-        self._name       = "Logistic regression"
+        self._name       = "SVM"
         self._config     = config or self.get_default_config()
 
         self._model      = make_pipeline(StandardScaler(), SVC(gamma='auto', probability=True))

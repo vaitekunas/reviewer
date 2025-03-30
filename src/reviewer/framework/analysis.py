@@ -94,7 +94,8 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
                 if not data.verify_schema(field, schema.dtype):
                     raise Exception(f"Schema for field '{field}' is wrong: expecting '{schema.dtype}'")
 
-            data.map_field(mapping[rfield], rfield)
+            if not schema.prefix:
+                data.map_field(mapping[rfield], rfield)
 
         # Run analysis
         results: AnalysisResults = {}
@@ -121,7 +122,9 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
             assert not {k for k,v in fields.required.items() if k in required and v.dtype != required[k].dtype}, "Some required fields have mismatching type requirements"
             assert not {k for k in fields.created if k in required or k in created}, "Repeated creation of same field"
 
-            required_new = {k: v for k, v in fields.required.items() if k not in created}
+            required_new = {k: v for k, v in fields.required.items()
+                                if (not v.prefix and k not in created) or
+                                   (v.prefix and not any([x.startswith(k) for x in created]))}
 
             dropped.update({k for k in fields.required if k not in fields.available})
             dropped.update({k for k in fields.created  if k not in fields.available})

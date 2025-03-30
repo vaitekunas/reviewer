@@ -48,7 +48,7 @@ class ScatterPlot(IVisualizer[ScatterPlotConfig]):
     @property
     @override
     def name(self) -> str:
-        return super().name
+        return self._name
 
     # Configurable
     @override
@@ -61,15 +61,18 @@ class ScatterPlot(IVisualizer[ScatterPlotConfig]):
         if self._config.use_result: 
             return {}
 
-        return {self._config.x_input_field: FieldSchema(dtype = int | float,
-                                                        description = "X-axis field"),
+        required = {self._config.x_input_field: FieldSchema(dtype = int | float,
+                                                            description = "X-axis field"),
 
-                self._config.y_input_field: FieldSchema(dtype = int | float, 
-                                                        description = "Y-axis field"),
+                   self._config.y_input_field: FieldSchema(dtype = int | float, 
+                                                           description = "Y-axis field")}
 
-                self._config.category_field: FieldSchema(dtype = Any,
-                                                         description = "Category field")}
+        if self._config.category_field:
+            required[self._config.category_field] =  FieldSchema(dtype = Any,
+                                                                 description = "Category field")
 
+        return required
+                
     @override
     def get_created_fields(self) -> dict[AnalysisField, FieldSchema]:
         return {}

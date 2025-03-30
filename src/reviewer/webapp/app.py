@@ -8,8 +8,6 @@ from .services    import *
 from .controllers import *
 from .utilities   import prepare_workdir
 
-from ..framework import step
-
 # Application parameters
 WORK_DIR        = os.path.expanduser(os.environ.get("WORK_DIR", "~/reviewer"))
 METHOD_REGISTRY = os.environ.get("METHOD_REGISTRY", "method_registry.json")

@@ -18,7 +18,7 @@ class RandomForest(BinaryClassifier):
     def __init__(self, config: RandomForestConfig | None = None) -> None:
         super().__init__(config)
 
-        self._name       = "Logistic regression"
+        self._name       = "Random Forest"
         self._config     = config or self.get_default_config()
 
         self._model      = RandomForestClassifier(max_depth = self._config.max_depth)

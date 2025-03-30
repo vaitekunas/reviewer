@@ -742,6 +742,11 @@ button.extract {
   color: var(--color-light-shades);
 }
 
+.step.llm {
+  background: var(--color-warning);
+  color: var(--color-dark-shades);
+}
+
 .step-icon {
   position: absolute;
   left: 0px;

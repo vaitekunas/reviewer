@@ -22,7 +22,6 @@ class WorkflowConfig(IConfig):
         name: name of the Workflow.
         sql_filter: optional sql-like filter rule 
         post_drop_columns: list of columns to drop after the workflow completed.
-        logger: optional logger for announcing step start.
     """
 
     name:              str

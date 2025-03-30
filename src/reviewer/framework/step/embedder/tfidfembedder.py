@@ -37,8 +37,6 @@ class TfIdfEmbedder(IEmbedder[TfIdfEmbedderConfig]):
         self._config = config or self.get_default_config()
         self._is_trained = False
 
-        self._tfidf = TfidfVectorizer(max_features = self._config.max_features)
-        self._svd   = TruncatedSVD(n_components=self._config.max_svd_components)
 
     # Identifiable
     @property
@@ -68,6 +66,9 @@ class TfIdfEmbedder(IEmbedder[TfIdfEmbedderConfig]):
     def train(self, data: IDataset) -> None:
         if self.is_trained:
             return
+
+        self._tfidf = TfidfVectorizer(max_features = int(self._config.max_features))
+        self._svd   = TruncatedSVD(n_components    = int(self._config.max_svd_components))
 
         texts = data.train_data.get_field_values(self._config.input_field)
 

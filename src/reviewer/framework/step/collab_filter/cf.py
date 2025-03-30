@@ -42,7 +42,7 @@ class CollaborativeFiltering(IPredictor[CollaborativeFilteringConfig]):
     @property
     @override
     def name(self) -> str:
-        return super().name
+        return self._name
 
     # Configurable
     @override

@@ -18,7 +18,7 @@ class DecisionTree(BinaryClassifier):
     def __init__(self, config: DecisionTreeConfig | None = None) -> None:
         super().__init__(config)
 
-        self._name       = "Logistic regression"
+        self._name       = "Decision Tree"
         self._config     = config or self.get_default_config()
 
         self._model      = DecisionTreeClassifier(max_depth = self._config.max_depth)

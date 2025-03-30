@@ -18,7 +18,7 @@ class NaiveBayes(BinaryClassifier):
     def __init__(self, config: NaiveBayesConfig | None = None) -> None:
         super().__init__(config)
 
-        self._name       = "Logistic regression"
+        self._name       = "Naive Bayes"
         self._config     = config or self.get_default_config()
 
         self._model      = GaussianNB()
