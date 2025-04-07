@@ -1,6 +1,7 @@
 __all__ = ["LinePlotConfig", "LinePlot"]
 
 from matplotlib.colors import Colormap
+from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import asdict, dataclass
@@ -134,9 +135,6 @@ class LinePlot(IVisualizer[LinePlotConfig]):
 
         marker = cfg.marker if cfg.marker == "" or cfg.marker in self._markers else self._markers[0]
 
-        x_tick_labels = [cfg.x_tick_format % xi for xi in x ]
-        y_tick_labels = [cfg.y_tick_format % yi for yi in y ]
-        
         fig, ax = plt.subplots(figsize=(10, 5))
         ax.plot(x, y, c=color)
         if marker:
@@ -145,8 +143,10 @@ class LinePlot(IVisualizer[LinePlotConfig]):
         ax.set_title(f"{cfg.title}")
         ax.set_xlabel(cfg.x_label)
         ax.set_ylabel(cfg.y_label)
-        ax.set_xticks(x, labels = x_tick_labels)
-        ax.set_yticks(y, labels = y_tick_labels)
+
+        ax.xaxis.set_major_formatter(FormatStrFormatter(cfg.x_tick_format))
+        ax.yaxis.set_major_formatter(FormatStrFormatter(cfg.y_tick_format))
+
         ax.spines[['right', 'top']].set_visible(False)
         plt.close(fig)
 

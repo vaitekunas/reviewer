@@ -85,12 +85,11 @@ class ROC(IEvaluator[ROCConfig]):
         curves = {}
         for pf in prediction_fields:
             predictions     = data.get_field_values(pf)
-            classifications = [int(x >= cfg.classification_threshold) for x in predictions]
 
             fields["variable"].append(pf)
-            fields["roc_auc"].append(roc_auc_score(target, classifications))
+            fields["roc_auc"].append(roc_auc_score(target, predictions))
 
-            curve_data = roc_curve(target, classifications)
+            curve_data = roc_curve(target, predictions)
             curves[pf] = new_dataset({"fpr": curve_data[0].tolist(),
                                       "tpr": curve_data[1].tolist()})
 

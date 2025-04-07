@@ -98,7 +98,7 @@ class RatingAnalyser(IAnalyser[RatingAnalyserConfig]):
         qs = np.quantile(ratings, self._config.quantiles)
         new_results.append(Result(method_id   = self.id,
                                   result_type = ResultType.DATASET,
-                                  result_name = self._config.output_histogram_name,
+                                  result_name = self._config.output_quantile_name,
                                   value       = new_dataset({"quantile": self._config.quantiles,
                                                              "value":    [float(x) for x in qs]})))
 

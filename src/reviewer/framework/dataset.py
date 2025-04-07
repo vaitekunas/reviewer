@@ -129,7 +129,7 @@ class Dataset(IDataset):
     @property
     @override
     def train_data(self) -> 'Dataset':
-        if not self._train_idx:
+        if not len(self._train_idx):
             return Dataset(self._df.copy())
 
         return Dataset(self._df.loc[self._train_idx, :].copy().reset_index(drop=True))
@@ -137,7 +137,7 @@ class Dataset(IDataset):
     @property
     @override
     def test_data(self) -> 'Dataset':
-        if not self._test_idx:
+        if not len(self._test_idx):
             return Dataset(self._df.copy())
 
         return Dataset(self._df.loc[self._test_idx, :].copy().reset_index(drop=True))
@@ -149,7 +149,14 @@ class Dataset(IDataset):
 
     @override
     def copy(self) -> 'Dataset':
-        return Dataset(self._df.copy())
+        new_ds = Dataset(self._df.copy())
+
+        if self._train_part != 1:
+            new_ds._train_part = self._train_part
+            new_ds._train_idx  = self._train_idx
+            new_ds._test_idx   = self._test_idx
+
+        return new_ds
 
     @override
     def to_dict(self) -> dict[str, list[Any]]:

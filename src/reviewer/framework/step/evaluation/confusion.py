@@ -90,9 +90,9 @@ class ConfusionMatrix(IEvaluator[ConfusionMatrixConfig]):
 
 
             results.append(Result(method_id   = self.id,
-                                   result_name = f"{cfg.output_name_prefix}{pf}",
-                                   result_type = ResultType.DATASET,
-                                   value       = new_dataset(fields)))
+                                  result_name = f"{cfg.output_name_prefix}{pf}",
+                                  result_type = ResultType.DATASET,
+                                  value       = new_dataset(fields)))
 
         return results
 

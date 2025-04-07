@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from dataclasses import asdict, dataclass
 from typing import Any, Generator, override, Callable
 
+from matplotlib.ticker import FormatStrFormatter
+
 from ...interface import IConfig, IDataset, IFigure, IVisualizer
 from ...aliases import AnalysisField, FieldSchema, Result, ResultName, ResultType
 
@@ -129,16 +131,15 @@ class ScatterPlot(IVisualizer[ScatterPlotConfig]):
 
         marker = cfg.marker if cfg.marker in self._markers else self._markers[0]
 
-        x_tick_labels = [cfg.x_tick_format % xi for xi in x ]
-        y_tick_labels = [cfg.y_tick_format % yi for yi in y ]
-
         fig, ax = plt.subplots(figsize=(10, 5))
         ax.scatter(x, y, marker=marker, c=colors)
         ax.set_title(f"{cfg.title}")
         ax.set_xlabel(cfg.x_label)
         ax.set_ylabel(cfg.y_label)
-        ax.set_xticks(x, labels = x_tick_labels)
-        ax.set_yticks(y, labels = y_tick_labels)
+
+        ax.xaxis.set_major_formatter(FormatStrFormatter(cfg.x_tick_format))
+        ax.yaxis.set_major_formatter(FormatStrFormatter(cfg.y_tick_format))
+
         ax.spines[['right', 'top']].set_visible(False)
         plt.close(fig)
 

@@ -1,6 +1,7 @@
 __all__ = ["BarChartConfig", "BarChart"]
 
 from matplotlib.colors import Colormap
+from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import asdict, dataclass
@@ -78,7 +79,7 @@ class BarChart(IVisualizer[BarChartConfig]):
         if not self._config.use_result:
             return {}
 
-        if (name_parts := self._config.use_result.split(".")) == 1:
+        if len(name_parts := self._config.use_result.split(".")) == 1:
             return {self._config.use_result: ResultType.DATASET}
         else:
             return {name_parts[0]: ResultType.DATASET_DICT}
@@ -142,8 +143,14 @@ class BarChart(IVisualizer[BarChartConfig]):
         ax.set_title(f"{cfg.title}")
         ax.set_xlabel(cfg.x_label)
         ax.set_ylabel(cfg.y_label)
-        ax.set_xticks(x, labels = x_tick_labels)
-        ax.set_yticks(y, labels = y_tick_labels)
+
+        if len(x_tick_labels) < 10:
+            ax.set_xticks(x, labels = x_tick_labels)
+            ax.set_yticks(y, labels = y_tick_labels)
+        else:
+            ax.xaxis.set_major_formatter(FormatStrFormatter(cfg.category_tick_format))
+            ax.yaxis.set_major_formatter(FormatStrFormatter(cfg.target_tick_format))
+
         ax.spines[['right', 'top']].set_visible(False)
         plt.close(fig)
 

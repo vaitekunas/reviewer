@@ -21,6 +21,7 @@ class PreprocessorConfig(IConfig):
 
     do_lowercase:          bool = True
     do_remove_stopwords:   bool = True
+    do_remove_short:       bool = True
     do_remove_nonascii:    bool = True
     do_stem:               bool = True
     do_lemmatization:      bool = False
@@ -99,6 +100,10 @@ class Preprocessor(IPreprocessor[PreprocessorConfig]):
 
         if cfg.do_remove_punctuation:
             values = [re.sub(r"([^\w\s]|_)", " ", str(x)) for x in values]
+
+        if cfg.do_remove_short:
+            for i, text in enumerate(values):
+                values[i] = " ".join([x for x in text.split() if len(x) >= 3])
 
         # Remove double spaces
         values = [re.sub(r"[ ]{2,}", " ", str(x)).strip() for x in values]

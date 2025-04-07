@@ -119,7 +119,8 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
         for w in self._workflows:
             fields = w.get_fields()
             
-            assert not {k for k,v in fields.required.items() if k in required and v.dtype != required[k].dtype}, "Some required fields have mismatching type requirements"
+            bad_types = {k for k,v in fields.required.items() if k in required and v.dtype is not Any and required[k].dtype is not Any and v.dtype != required[k].dtype}
+            assert not bad_types, f"Some required fields ({', '.join(list(bad_types))}) have mismatching type requirements"
             assert not {k for k in fields.created if k in required or k in created}, "Repeated creation of same field"
 
             required_new = {k: v for k, v in fields.required.items()
