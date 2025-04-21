@@ -508,7 +508,7 @@ button.extract {
 }
 
 .dashboard-welcome {
-  min-width: var(--run-settings-width);
+  max-width: var(--run-settings-width);
   padding-left: var(--sidebar-minwidth);
   padding-right: 1rem;
 }
@@ -889,4 +889,14 @@ button.extract {
 .run-saver {
   width: 100%;
   text-align: center;
+}
+
+.session_buttons {
+  display: flex;
+  align-items: baseline;
+  color: var(--color-primary);
+}
+
+.session_buttons > *+* {
+  margin-left: 0.25rem;
 }

@@ -20,7 +20,7 @@ class LLMPredictorConfig(IConfig):
     review_field:       str = "text"
 
     llm_model: str = "gemma2"
-    prompt: str    = "Estimate the binary sentiment, give a sentiment score (from 0.0 to 1.0) and the sentiment class (0 or 1)."
+    prompt: str    = "Estimate the binary sentiment for the following text; give a sentiment probability (from 0.0 for very negative sentiment to 1.0 for very positive sentiment) and the sentiment class (0 for negative sentiment and 1 for positive sentiment). Your response must be a valid JSON object."
 
     @override
     def to_dict(self) -> dict[str, Any]:
@@ -42,15 +42,15 @@ class LLMPredictor(IPredictor[LLMPredictorConfig]):
         col_prob = self._config.output_prob_field
         col_pred = self._config.output_class_field
 
-        BinaryPrediction = create_model(
-            "BinaryPrediction",
+        BinarySentimentPrediction = create_model(
+            "BinarySentimentPrediction",
             **{
                 col_prob: (float, ...),
                 col_pred: (int, ...)
             }
         )
 
-        return BinaryPrediction
+        return BinarySentimentPrediction
     
     # Identifiable
     @property
@@ -100,13 +100,9 @@ class LLMPredictor(IPredictor[LLMPredictorConfig]):
         data = data.copy()
 
         # Setup ollama
-        text_prompt = lambda text: f"""The data contains following classes: {', '.join([str(x) for x in self._classes])}
+        text_prompt = lambda text: f"""{self._config.prompt}
 
-                                       Implement the following instruction:
-                                       Instruction: {self._config.prompt}
-
-                                       On the following text: 
-                                       Text: {text}"""
+                                       {text}"""
 
         dm = self._create_prediction_datamodel()
         client = ollama.Client(host = runtime.llm_host)

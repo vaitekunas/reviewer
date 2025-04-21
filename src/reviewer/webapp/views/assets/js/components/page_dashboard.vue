@@ -7,7 +7,18 @@
 
       <div v-if="!logged_in" class="dashboard-welcome">
         <h1>Welcome</h1>
-        This is a customer review analytics 
+        to <i>Reviewer</i>, your go-to analytics platform for dissecting and visualizing 
+        customer feedback through simple data science techniques.        
+        <br>
+        <br>
+        Craft versatile workflows and seamlessly integrate them into comprehensive, holistic analyses.
+        <br>
+        <br>
+        Store your datasets, workflows, analyses, and results seamlessly. Combine them flexibly to 
+        uncover deep insights into customer behavior and preferences.
+        <br>
+        <br>
+        Leverage our open APIs to extend the application with your own methods and techniques.
       </div>
 
         <div class="dashboard-col">

@@ -5,11 +5,13 @@
     <div v-if="!is_logged_in" v-on:keydown.enter="log_in" class="avatar">
       <input class="in-username" placeholder = "username" v-model="username"/>
       <input class="in-password" placeholder = "password" type="password" v-model="password" ref="password"/>
-      <button v-on:click="log_in">Login</button>
-      <div>
-        or
+      <div class="session_buttons">
+        <button v-on:click="log_in">Login</button>
+        <div>
+          or
+        </div>
+        <button v-on:click="register" class="alternative">Sign Up</button>
       </div>
-      <button v-on:click="register" class="alternative">Sign Up</button>
     </div>
     <div v-else class="avatar">
       <div class="avatar-greet">
