@@ -10,6 +10,8 @@
                 v-on:logout="refresh_data">
       </tool-bar>
 
+      <errors :messages="state.error_messages"></errors>
+
       <div class="content">
         <side-bar :logged_in="logged_in"
                   v-on:select_page="select_page($event)">

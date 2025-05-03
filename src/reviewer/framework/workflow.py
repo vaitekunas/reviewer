@@ -179,7 +179,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
                     raise Exception(f"Incompatible field creation for '{field}': a previous step created it already.")
 
                 if field in required_fields:
-                    raise Exception(f"The created field '{field}' is already required")
+                    raise Exception(f"The created field '{field}' is required in earlier step")
 
                 created_fields[field] = field_type
 
@@ -238,29 +238,26 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
     @staticmethod
     def from_schema(workflow_dict: WorkflowSchema) -> 'Workflow':
 
-        try:
-            config       = WorkflowConfig(**workflow_dict.config)
-            workflow     = Workflow(config)
-            workflow._id = workflow_dict.id or get_object_id(workflow)
+        config       = WorkflowConfig(**workflow_dict.config)
+        workflow     = Workflow(config)
+        workflow._id = workflow_dict.id or get_object_id(workflow)
 
-            for sdict in workflow_dict.steps:
+        for sdict in workflow_dict.steps:
 
-                # Initialize step with default config
-                step_module = importlib.import_module(sdict.module)
-                step_class = getattr(step_module, sdict.classname)
-                step: IMethod[Any] = step_class()
+            # Initialize step with default config
+            step_module = importlib.import_module(sdict.module)
+            step_class = getattr(step_module, sdict.classname)
+            step: IMethod[Any] = step_class()
 
-                # Reconfigure step
-                step_config = step.get_default_config()
-                step_config.update(values = sdict.config)
-                step.configure(step_config)
-                step._id = sdict.id or get_object_id(step)
+            # Reconfigure step
+            step_config = step.get_default_config()
+            step_config.update(values = sdict.config)
+            step.configure(step_config)
+            step._id = sdict.id or get_object_id(step)
 
-                # Add to workflow
-                workflow.add(step)
-                
-        except:
-            raise Exception("Could not initialize Workflow")
+            # Add to workflow
+            workflow.add(step)
+            
 
         return workflow
 

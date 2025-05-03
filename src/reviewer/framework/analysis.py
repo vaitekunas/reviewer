@@ -174,8 +174,8 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
             for workflow_schema in analysis_dict.workflows:
                 analysis.add(Workflow.from_schema(workflow_schema))
 
-        except:
-            raise Exception("Could not initialize Analysis")
+        except Exception as e:
+            raise Exception(f"Invalid analysis schema: {str(e)}")
 
         return analysis
 

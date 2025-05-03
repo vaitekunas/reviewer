@@ -401,7 +401,10 @@ def get_analysis_fields(analysis: AnalysisDTO) -> AnalysisFieldsDTO:
     # Services
     analytics = runtime.services.analytics
 
-    return analytics.get_analysis_fields(analysis)
+    try:
+        return analytics.get_analysis_fields(analysis)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/api/analysis", tags=["analytics :: analysis"])
 def create_analysis(analysis:      AnalysisDTO,

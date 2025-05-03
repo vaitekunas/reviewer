@@ -224,11 +224,10 @@ const api_requirements = async function(analysis_schema) {
     headers: get_auth_headers(),
     body: JSON.stringify(analysis_schema)
   })
-    .then(response => response.json())
-    .catch(error => {
-      console.error(error);
-      return {};
-    })
+  .then(response => response.json())
+  .catch(error => {
+    return {detail: error};
+  })
 
   return result;
 };
@@ -241,7 +240,6 @@ const api_analysis = async function() {
   })
     .then(response => response.json())
     .catch(error => {
-      console.error(error);
       return {};
     })
 

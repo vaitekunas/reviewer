@@ -19,6 +19,8 @@ const global_data = {
       expander_in:  "expander_in"
     },
 
+    error_messages: [],
+
   }
 
 };

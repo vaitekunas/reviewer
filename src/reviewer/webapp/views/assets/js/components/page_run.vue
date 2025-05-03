@@ -179,6 +179,12 @@ methods: {
 
     var schema          = this.get_schema();
     var requirements    = await api_requirements(schema);
+
+    if(Object.keys(requirements).indexOf("detail") >= 0){
+      this.state.error_messages.push(requirements.detail);
+      return;
+    }
+
     var required        = requirements.fields.required;
     var required_fields = JSON.parse(JSON.stringify(this.required_fields));
     var mapping         = JSON.parse(JSON.stringify(this.mapping));
