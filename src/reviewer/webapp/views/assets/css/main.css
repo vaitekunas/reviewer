@@ -720,9 +720,44 @@ button.extract {
   border: 2px solid var(--color-dark-shades);
   cursor: pointer;
   font-size: 0.85em;
+  user-select: none;
 }
 
-.step.preprocessing, step.embedding {
+.dragger {
+  position: absolute;
+  left: 1px;
+  top: 1px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  color: var(--color-primary);
+}
+
+.closer {
+  position: absolute;
+  right: 0;
+  top: -0.05em;
+  width: 16px;
+  height: 16px;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-weight: bold;
+  z-index: 10;
+  text-align: center;
+  transition: background ease-in 100ms;
+  border-radius: var(--step-border-radius);
+}
+
+.closer:hover {
+  background: var(--color-danger);
+  color: var(--color-light-shades);
+}
+
+.closer:active {
+  filter: brightness(85%);
+}
+
+.step.preprocessing, .step.embedding {
   background: var(--color-light-accent);
   color: var(--color-dark-shades);
 }
@@ -781,6 +816,7 @@ button.extract {
 }
 
 .workflow {
+  position: relative;
   padding: 1rem;
   border-radius: var(--workflow-border-radius);
   border: 1px dashed var(--color-primary);
@@ -807,7 +843,7 @@ button.extract {
 
 .workflow-steps {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-start;
 }
 .workflow-steps .step + .step {

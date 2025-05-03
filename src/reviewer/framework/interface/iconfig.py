@@ -1,5 +1,6 @@
 __all__ = ["IConfig"]
 
+import re
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -12,33 +13,36 @@ class IConfig(ABC):
 
     def _cast(self, old_value: Any, new_value: Any) -> Any:
 
-        if isinstance(old_value, str):
-            transformed_value = str(new_value)
+        # Split to parts
+        if not (isinstance(new_value, list) or isinstance(new_value, tuple)):
+            raw_values = re.sub("[()[]]","",str(new_value)).split(",")
+        else:
+            raw_values = new_value
 
-        elif isinstance(old_value, bool):
-            transformed_value = bool(new_value)
-
-        elif isinstance(old_value, int):
-            transformed_value = int(new_value)
-
-        elif isinstance(old_value, float):
-            transformed_value = float(new_value)
-
-        elif isinstance(old_value, tuple):
-            raw_values = str(new_value).split(",")
-
+        # Cast
+        if isinstance(old_value, tuple):
             if len(old_value):
                 transformed_value = tuple([self._cast(old_value[0], x) for x in raw_values])
             else:
                 transformed_value = raw_values
 
         elif isinstance(old_value, list):
-            raw_values = str(new_value).split(",")
-
             if len(old_value):
                 transformed_value = [self._cast(old_value[0], x) for x in raw_values]
             else:
                 transformed_value = raw_values
+
+        elif isinstance(old_value, str):
+            transformed_value = str(new_value)
+
+        elif isinstance(old_value, bool):
+            transformed_value = bool(new_value)
+
+        elif isinstance(old_value, int):
+            transformed_value = int(str(new_value))
+
+        elif isinstance(old_value, float):
+            transformed_value = float(str(new_value))
 
         else:
             transformed_value = old_value
@@ -50,4 +54,7 @@ class IConfig(ABC):
         for k, v in values.items():
             if hasattr(self, k):
                 old_value = getattr(self, k)
-                setattr(self, k, self._cast(old_value, v))
+                try:
+                    setattr(self, k, self._cast(old_value, v))
+                except:
+                    raise Exception(f"Invalid value format for '{k}'")

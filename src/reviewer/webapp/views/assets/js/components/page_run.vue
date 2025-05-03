@@ -19,13 +19,6 @@
           </div>
         </card>
 
-        <card title="Dataset" icon="datasets">
-          <dataset-chooser 
-            :dataset_name="dataset"
-            v-on:dataset-choice="update_dataset($event)">
-          </dataset-chooser>
-        </card>
-
         <card v-if="workflows == null" title="Analysis" icon="analysis">
           <div class="analysis-chooser">
               <div class="analysis-chooser-container" v-if="analyses.length > 0">
@@ -41,6 +34,13 @@
               </div>
               <button class="success" v-on:click="create">Create new analysis</button>
           </div>
+        </card>
+
+        <card title="Dataset" icon="datasets">
+          <dataset-chooser 
+            :dataset_name="dataset"
+            v-on:dataset-choice="update_dataset($event)">
+          </dataset-chooser>
         </card>
 
         <card title="Mapping" icon="mapping">
@@ -59,6 +59,7 @@
       <div class="run-workflow">
         <analysis v-if="workflows != null"
                   :workflows="workflows" 
+                  v-on:being_dragged="being_dragged=$event"
                   v-on:changed="update_requirements"></analysis>
 
         <div v-else class="run-icon-container">
@@ -83,7 +84,8 @@ data: function(){
     dataset_info:      null,
     required_fields:   {},
     workflows:         null,
-    mapping:           {}
+    mapping:           {},
+    being_dragged:     false
   }
 },
 
@@ -116,10 +118,13 @@ methods: {
   },
 
   use_selected_analysis: function(){
-    var schema     = this.analyses.filter(a => a.config.name == this.selected_analysis)[0];
+    var schema     = JSON.parse(JSON.stringify(this.analyses.filter(a => a.config.name == this.selected_analysis)[0]));
 
     this.title     = schema.config.name;
     this.workflows = schema.workflows;
+
+    this.mapping = {};
+    this.required_fields = {};
   },
 
   reset: function(){
@@ -142,7 +147,6 @@ methods: {
                   analysis: JSON.parse(JSON.stringify(this.get_schema()))};
 
     var result = await api_analyze(this.title, schema);
-    console.log(result);
   },
 
   save: async function(){
@@ -167,6 +171,10 @@ methods: {
   },
 
   update_requirements: async function(){
+    if(this.being_dragged){
+      return;
+    }
+
     var that = this;
 
     var schema          = this.get_schema();
@@ -207,6 +215,7 @@ watch: {
     if(new_val == null){
       return;
     }
+
     await this.update_requirements();
   }
 },

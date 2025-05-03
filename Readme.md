@@ -12,3 +12,5 @@ To start the application in development mode:
 cd src/reviewer/webapp
 ENV=dev fastapi run app.py
 ```
+
+Icons: [Untitled UI](https://www.untitledui.com/free-icons)
