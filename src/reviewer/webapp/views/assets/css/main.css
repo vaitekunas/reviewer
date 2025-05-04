@@ -9,11 +9,14 @@
   --step-border-radius: 5px;
   --workflow-border-radius: 5px;
 
+  --step-wrapper-min-width: 200px;
+
   --input-border: 1px solid lightgray;
   --card-border: 1px solid lightgray;
 
   --toolbar-height: 150px;
   --toolbar-title-size: 65px;
+  --method-title-size: 25px;
   --sidebar-minwidth: 60px;
   --sidebar-maxwidth: 165px;
   --sidebar-bottom: 50px;
@@ -65,8 +68,7 @@ body {
   margin: 0;
   padding: 0;
   font-size: 14px;
-  width: 100vw;
-  height: 100vh;
+  width: calc(100vw - 1rem);
   font-family: sans-serif;
   color: var(--color-dark-shades);
   background: var(--color-light-shades);
@@ -147,6 +149,15 @@ select.short {
 
 textarea { 
   resize: none; 
+  scrollbar-width: none;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 0;
+  height: 100%;
+}
+
+textarea.step-config-input {
+  height: 175px;
 }
 
 ::placeholder {
@@ -292,7 +303,9 @@ button.extract {
 .content-area {
   position: relative;
   width: 100%;
+  max-height: calc(100vh - var(--toolbar-height) - var(--sidebar-bottom));
   height: calc(100vh - var(--toolbar-height) - var(--sidebar-bottom));
+  scrollbar-width: none;
   padding-left: 1rem;
 }
 
@@ -342,6 +355,30 @@ button.extract {
   font-family: "Comfortaa", "sans-serif";
 }
 
+.method-title {
+  font-size: var(--method-title-size);
+  color: var(--color-text);
+  min-width: fit-content;
+  font-family: "Comfortaa", "sans-serif";
+  margin-bottom: 0.25rem;
+}
+
+.method-title::first-letter {
+    text-transform: capitalize;
+}
+
+.method-lists {
+  max-height: calc(100vh - var(--toolbar-height) - var(--sidebar-bottom));
+  height: calc(100vh - var(--toolbar-height) - var(--sidebar-bottom));
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.method-list {
+  margin-bottom: 1rem;
+}
+
+
 .toolbar-tabs {
   display: flex;
   width: 100%;
@@ -369,6 +406,7 @@ button.extract {
 
 .sidebar.expanded {
   width: var(--sidebar-maxwidth);
+  min-width: var(--sidebar-maxwidth);
 }
 
 .sidebar-tabs {
@@ -712,9 +750,22 @@ button.extract {
   opacity: 0;
 }
 
+.step-wrapper {
+  position: relative;
+  min-width: var(--step-wrapper-min-width);
+  width: min-content;
+}
+
+.step-description {
+  margin-bottom: 0.5rem;
+  font-size: 0.85em;
+  word-wrap: normal;
+}
+
 .step {
   position: relative;
   padding: 1rem;
+  padding-left: 1.5rem;
   border-radius: var(--step-border-radius);
   box-sizing: border-box;
   background: var(--color-primary);
@@ -723,6 +774,7 @@ button.extract {
   cursor: pointer;
   font-size: 0.85em;
   user-select: none;
+  min-width: max-content;
 }
 
 .dragger {
@@ -790,7 +842,6 @@ button.extract {
   top: 0px;
   width: 16px;
   height: 16px;
-  color: var(--color-light-shades);
 }
 
 .step-config {
@@ -807,8 +858,44 @@ button.extract {
 }
 
 .step-config-input {
-  width: 75;
+  width: 150px;
 }
+
+.step.classification .step-config-input ,
+.step.trend .step-config-input ,
+.step.recommendation .step-config-input ,
+.step.description .step-config-input {
+  background: var(--color-main-brand);
+}
+
+.close-icon {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 24px;
+  height: 24px;
+  padding: 0.15rem;
+  border-radius: var(--border-radius);
+  color: var(--color-danger);
+  background: none;
+  z-index:10;
+}
+
+.close-icon:hover {
+  background: var(--color-danger);
+  color: var(--color-dark-shades);
+}
+
+.step.evaluation .close-icon {
+  color: var(--color-dark-shades);
+}
+
+.step.evaluation .close-icon:hover {
+  color: var(--color-danger);
+  background: var(--color-dark-shades);
+}
+
+
 
 .add-button {
   background: var(--color-light-shades);
@@ -823,6 +910,7 @@ button.extract {
   border-radius: var(--workflow-border-radius);
   border: 1px dashed var(--color-primary);
   box-sizing: border-box;
+  margin-right: 1rem;
 }
 
 .workflow-config {
@@ -847,9 +935,14 @@ button.extract {
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
+  width: max-content;
 }
 .workflow-steps .step + .step {
   margin-left: 0.25rem;
+}
+
+.workflow-steps .step-wrapper + .step-wrapper {
+  margin-left: 0.5rem;
 }
 
 .analysis {

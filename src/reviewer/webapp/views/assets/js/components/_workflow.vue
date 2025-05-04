@@ -34,7 +34,7 @@
             v-on:changed="changed"
             v-on:remove="remove_step(i)"
 
-            icon="run"></step>
+            :icon="method_types[s.name]+'-method'"></step>
 
       <add-button title="+ step" 
                   :choices="methods"

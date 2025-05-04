@@ -3,18 +3,23 @@
 <template>
   <div class="step" 
     :class="classname" 
+    v-on:click="configure = true"
     draggable="true"
     @dragstart="emit_start_drag"
     @drag="emit_drag"
     @dragend="emit_end_drag">
 
-    <div class="closer" v-on:click="$emit('remove')">x</div>
-    <div v-if="!configure" v-on:click="configure = true">
+    <div v-if="!no_delete" class="closer" v-on:click="$emit('remove')">x</div>
+
+    <div v-if="!configure" >
       <icon class="step-icon" :icon="icon" v-if="icon"></icon>
       {{title}}
     </div>
+
     <div class="step-config" v-else>
-      <button v-on:click="configure=false">close</button>
+      <button class="close-icon" v-on:click="hide_config">
+        <icon icon="close"></icon>
+      </button>
       <table>
         <tr class="step-config-head">
           <th>Option</th>
@@ -27,7 +32,18 @@
             </div>
           </td>
           <td>
-            <input class="step-config-input" v-on:change="$emit('changed')" v-model="config[k]"/>
+            <span v-if="is_short(config[k])">
+            <input class="step-config-input" 
+                   :readonly="readonly"
+                   v-on:change="$emit('changed')" 
+                   v-model="config[k]"/>
+            </span>
+            <span v-else>
+              <textarea class="step-config-input" 
+                     :readonly="readonly"
+                     v-on:change="$emit('changed')" 
+                     v-model="config[k]"></textarea>
+            </span>
           </td>
         </tr>
       </table>
@@ -47,6 +63,15 @@ data: function(){
 
 methods: {
 
+  is_short: function(val){
+    return val == null || String(val).trim().length < 20;
+  },
+
+  hide_config: function(event){
+    event.stopPropagation();
+    this.configure = false;
+  },
+
   emit_start_drag: function(event){
     this.$emit("start_drag", event);
   },
@@ -61,5 +86,5 @@ methods: {
 
 },
 
-props: ["idx", "title", "config", "icon", "classname"]
+props: ["idx", "title", "config", "icon", "classname", "readonly", "no_delete"]
 </javascript>

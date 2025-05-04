@@ -1,9 +1,9 @@
 <name>add-button</name>
 
 <template>
-  <div class="step add-button">
+  <div class="step add-button" v-on:click="active = true">
     
-    <div v-if="!active" v-on:click="active = true">
+    <div v-if="!active">
       {{title}}
     </div>
     <div v-else>
@@ -51,20 +51,23 @@ computed: {
 
 methods: {
 
-  reset: function(){
+  reset: function(event){
+    event.stopPropagation();
     this.choice = null;
     this.active = false;
     this.activated = false;
   },
 
-  choose: function(){
+  choose: function(event){
+    event.stopPropagation();
     this.$emit("add", this.choice);
-    this.reset();
+    this.reset(event);
   },
 
-  choose_empty: function(){
+  choose_empty: function(event){
+    event.stopPropagation();
     this.$emit("add_empty");
-    this.reset();
+    this.reset(event);
   }
 
 },
