@@ -16,6 +16,7 @@
                 v-on:end_drag="end_drag(i, $event)"
 
                 v-on:remove="remove_workflow(i)"
+                v-on:duplicate="duplicate_workflow(i)"
                 v-on:saved = "update_existing_workflows"
                 v-on:changed="$emit('changed')"></workflow>
     </div>
@@ -70,6 +71,12 @@ methods: {
     var schema = {config: {},
                   workflows: []};
 
+  },
+
+  duplicate_workflow: function(idx){
+    var workflow = JSON.parse(JSON.stringify(this.workflows[idx]));
+    this.workflows.splice(idx, 0, workflow);
+    this.$emit("changed");
   },
 
   remove_workflow: function(idx){

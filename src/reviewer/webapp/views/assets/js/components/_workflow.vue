@@ -10,7 +10,12 @@
     <div class="dragger" v-on:click="$emit('remove')">
       <icon icon="drag"></icon>
     </div>
+
     <div class="closer" v-on:click="$emit('remove')">x</div>
+
+    <div class="duplicator" v-on:click="$emit('duplicate')">
+      <icon class="step-icon" icon="duplicate">
+    </div>
 
     <div class="workflow-steps">
 

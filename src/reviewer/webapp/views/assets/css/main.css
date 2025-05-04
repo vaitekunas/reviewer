@@ -811,6 +811,30 @@ button.extract {
   filter: brightness(85%);
 }
 
+.duplicator {
+  position: absolute;
+  right: 0;
+  bottom: 0.05em;
+  width: 16px;
+  height: 16px;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-weight: bold;
+  z-index: 10;
+  text-align: center;
+  transition: background ease-in 100ms;
+  border-radius: var(--step-border-radius);
+}
+
+.duplicator:hover {
+  background: var(--color-danger);
+  color: var(--color-light-shades);
+}
+
+.duplicator:active {
+  filter: brightness(85%);
+}
+
 .step.preprocessing, .step.embedding {
   background: var(--color-light-accent);
   color: var(--color-dark-shades);
