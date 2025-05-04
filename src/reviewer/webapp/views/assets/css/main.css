@@ -26,6 +26,9 @@
   --card-width: 250px;
   --card-height: 300px;
 
+  --dataset-card-width: 250px;
+  --dataset-card-height: 250px;
+
   --errors-width: 250px;
 
   --dashboard-card-width: 250px;
@@ -43,7 +46,7 @@
   --color-dark-accent:  rgb(241, 250, 238);
   --color-dark-shades:  rgb(29, 53, 87);
 
-  --color-disabled:     rgb(231, 233, 233);
+  --color-disabled:     rgb(231, 237, 233);
 
   --color-text:    var(--color-dark-shades);
   --color-primary: var(--color-main-brand);
@@ -1081,3 +1084,122 @@ button.extract {
   margin-bottom: 0.5rem;
   margin-right: 1rem;
 }
+
+.dataset-lists {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  max-height: calc(100vh - var(--toolbar-height) - var(--sidebar-bottom));
+  height: calc(100vh - var(--toolbar-height) - var(--sidebar-bottom));
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.dataset-wrapper {
+  position: relative;
+}
+
+.dataset-wrapper + .dataset-wrapper {
+  margin-left: 0.5rem;
+}
+
+.dataset {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-light-shades);
+  background-color: var(--card-color-1);
+  z-index: 1;
+  padding: 1rem;
+  padding-bottom: 0;
+  width: var(--dataset-card-width);
+  height: var(--dataset-card-height);
+  box-sizing: border-box;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.dataset:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+.dataset svg {
+  filter: brightness(110%);
+  color: var(--card-color-1);
+}
+
+
+.dataset-stats {
+  width: 100%;
+  z-index: 1;
+}
+
+.dataset-stats + .dataset-stats {
+  margin-top: 0.25rem;
+}
+
+.stats-table {                                                                  
+  border-collapse: collapse;                                                    
+  font-size: 0.9em;                                                             
+  margin-bottom: 0.5rem;
+}                                                                               
+                                                                                
+.stats-table thead tr {                                                         
+    background-color: var(--color-dark-shades);                                
+    color: var(--color-light-shades);
+    text-align: left;                                                           
+}                                                                               
+
+.stats-table-fcol {
+  display: flex;
+  align-items: center;
+}
+
+.stats-table-fcol > *+* {
+  margin-left: 0.25rem;
+}
+                                                                                
+.stats-table th,                                                                
+.stats-table td {                                                               
+    padding: 12px 15px;                                                         
+}                                                                               
+                                                                                
+.stats-table tbody tr {                                                         
+    border-bottom: 1px solid var(--color-dark-shades);
+}                                                                               
+                                                                                
+.stats-table tbody tr:nth-of-type(even) {                                       
+    background-color: var(--color-disabled);                                    
+}                                                                               
+                                                                                
+.stats-table tbody tr:last-of-type {                                            
+    border-bottom: 2px solid var(--color-dark-shades);
+}
+
+.table-closer {
+  position: relative;
+  display: inline;
+  width: 16px;
+  height: 16px;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-weight: bold;
+  text-align: center;
+  transition: background ease-in 100ms;
+  border-radius: var(--step-border-radius);
+  background: none;
+  padding: 0;
+}
+
+.table-closer:hover {
+  background: var(--color-danger);
+  color: var(--color-light-shades);
+}
+
+.table-closer:active {
+  filter: brightness(85%);
+}
+

@@ -176,6 +176,21 @@ const api_datasets = async function() {
   return result;
 };
 
+const api_dataset = async function(name) {
+
+  var result = fetch("/api/dataset/"+name, {
+    method: "GET",
+    headers: get_auth_headers()
+  })
+    .then(response => response.json())
+    .catch(error => {
+      console.error(error);
+      return {};
+    })
+
+  return result;
+};
+
 const api_create_dataset = async function(input_id, dataset_name) {
 
   const fileInput = document.getElementById(input_id);

@@ -2,11 +2,15 @@
 
 <template>
   <div class="content-area">
-    Datasets
-    <div v-for="d in datasets">
-      {{d.name}}
+    <div class="dataset-lists">
+      <dataset 
+        v-for="d in datasets" 
+        :name="d.name"
+        :n_rows="d.n_rows"
+        :n_columns="d.n_columns"
+        :columns="d.columns.split(',')">
+      </dataset>
     </div>
-
   </div>
 </template>
 

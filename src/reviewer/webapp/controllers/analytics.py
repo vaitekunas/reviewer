@@ -264,7 +264,7 @@ def get_dataset_by_name(dataset_name: str,
 
     with runtime.transaction as t:
         user = _get_user(t, session_token)
-        dataset = analytics.get_dataset_by_name(t, user, dataset_name, with_data=False)
+        dataset = analytics.get_dataset_by_name(t, user, dataset_name, with_data=True)
         
     return dataset
 
