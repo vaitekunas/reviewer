@@ -2,24 +2,25 @@
 
 <template>
   <div class="workflow" :id="'workflow_' + idx" 
-    draggable="true"
+    :draggable="!inactive"
     @dragstart="emit_start_drag"
     @drag="emit_drag"
     @dragend="emit_end_drag">
 
-    <div class="dragger" v-on:click="$emit('remove')">
+    <div v-if="!inactive" class="dragger" v-on:click="$emit('remove')">
       <icon icon="drag"></icon>
     </div>
 
-    <div class="closer" v-on:click="$emit('remove')">x</div>
+    <div v-if="!inactive" class="closer" v-on:click="$emit('remove')">x</div>
 
-    <div class="duplicator" v-on:click="$emit('duplicate')">
+    <div v-if="!inactive" class="duplicator" v-on:click="$emit('duplicate')">
       <icon class="step-icon" icon="duplicate">
     </div>
 
     <div class="workflow-steps">
 
       <workflow-config 
+        v-if      = "!inactive"
         :config   = "config"
         :steps    = "steps"
         :existing = "existing_workflows"
@@ -39,9 +40,11 @@
             v-on:changed="changed"
             v-on:remove="remove_step(i)"
 
+            :inactive="inactive"
             :icon="method_types[s.name]+'-method'"></step>
 
-      <add-button title="+ step" 
+      <add-button v-if="!inactive"
+                  title="+ step" 
                   :choices="methods"
                   :allow_empty="false"
                   :group_choices="true"
@@ -206,5 +209,5 @@ watch: {
 },
 
 
-props: ["idx", "methods", "existing_workflows", "config", "steps"]
+props: ["idx", "methods", "existing_workflows", "config", "steps", "inactive"]
 </javascript>

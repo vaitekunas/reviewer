@@ -1089,6 +1089,7 @@ button.extract {
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
+  align-content: baseline;
   flex-wrap: wrap;
   max-height: calc(100vh - var(--toolbar-height) - var(--sidebar-bottom));
   height: calc(100vh - var(--toolbar-height) - var(--sidebar-bottom));
@@ -1096,12 +1097,16 @@ button.extract {
   scrollbar-width: none;
 }
 
+
 .dataset-wrapper {
+  display: flex;
   position: relative;
+  margin-right: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
-.dataset-wrapper + .dataset-wrapper {
-  margin-left: 0.5rem;
+.dataset-wrapper.expanded {
+  flex-basis: 100%;
 }
 
 .dataset {
@@ -1203,3 +1208,30 @@ button.extract {
   filter: brightness(85%);
 }
 
+
+.workflow-lists {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  align-content: baseline;
+  flex-wrap: wrap;
+  max-height: calc(100vh - var(--toolbar-height) - var(--sidebar-bottom));
+  height: calc(100vh - var(--toolbar-height) - var(--sidebar-bottom));
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.workflow-details {
+  width: 100%;
+}
+
+
+.workflow-card-count {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 25px;
+  height: calc(100% - 30px);
+  z-index: 1;
+}

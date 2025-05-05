@@ -1,7 +1,7 @@
 <name>dataset</name>
 
 <template>
-  <div class="dataset-wrapper">
+  <div class="dataset-wrapper" :class="{expanded: show_head}">
 
     <div v-if="!show_head" class="dataset" v-on:click="show_data">
       <div class="dashboard-card-background">

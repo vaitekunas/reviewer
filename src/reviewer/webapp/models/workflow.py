@@ -60,6 +60,7 @@ class WorkflowRepository(Repository):
         ws = (session
                 .query(Workflow)
                 .filter(Workflow.user_id == user_id)
+                .order_by(func.lower(Workflow.name))
                 .all())
 
         workflows = []

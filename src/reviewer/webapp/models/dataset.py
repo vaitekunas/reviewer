@@ -61,7 +61,7 @@ class DatasetRepository(Repository):
         ds = (session
                 .query(Dataset)
                 .filter(Dataset.user_id == user_id)
-                .order_by(Dataset.name)
+                .order_by(func.lower(Dataset.name))
                 .all())
 
         datasets = []

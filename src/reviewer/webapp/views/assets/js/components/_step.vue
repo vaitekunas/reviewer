@@ -4,12 +4,12 @@
   <div class="step" 
     :class="classname" 
     v-on:click="configure = true"
-    draggable="true"
+    :draggable="!inactive"
     @dragstart="emit_start_drag"
     @drag="emit_drag"
     @dragend="emit_end_drag">
 
-    <div v-if="!no_delete" class="closer" v-on:click="$emit('remove')">x</div>
+    <div v-if="!inactive" class="closer" v-on:click="$emit('remove')">x</div>
 
     <div v-if="!configure" >
       <icon class="step-icon" :icon="icon" v-if="icon"></icon>
@@ -34,13 +34,13 @@
           <td>
             <span v-if="is_short(config[k])">
             <input class="step-config-input" 
-                   :readonly="readonly"
+                   :readonly="inactive"
                    v-on:change="$emit('changed')" 
                    v-model="config[k]"/>
             </span>
             <span v-else>
               <textarea class="step-config-input" 
-                     :readonly="readonly"
+                     :readonly="inactive"
                      v-on:change="$emit('changed')" 
                      v-model="config[k]"></textarea>
             </span>
@@ -86,5 +86,5 @@ methods: {
 
 },
 
-props: ["idx", "title", "config", "icon", "classname", "readonly", "no_delete"]
+props: ["idx", "title", "config", "icon", "classname", "inactive"]
 </javascript>

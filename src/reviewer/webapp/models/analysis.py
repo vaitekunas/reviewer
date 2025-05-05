@@ -60,6 +60,7 @@ class AnalysisRepository(Repository):
         ws = (session
                 .query(Analysis)
                 .filter(Analysis.user_id == user_id)
+                .order_by(func.lower(Analysis.name))
                 .all())
 
         analysis_list = []

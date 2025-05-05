@@ -121,7 +121,8 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
             
             bad_types = {k for k,v in fields.required.items() if k in required and v.dtype is not Any and required[k].dtype is not Any and v.dtype != required[k].dtype}
             assert not bad_types, f"Some required fields ({', '.join(list(bad_types))}) have mismatching type requirements"
-            assert not {k for k in fields.created if k in required or k in created}, "Repeated creation of same field"
+            assert not (reps := {k for k in fields.created if k in required}), f"Some fields are created later than they are required: {', '.join(reps)}"
+            assert not (reps := {k for k in fields.created if k in created}), f"Some fields are created repeatedly (being overwritten): {', '.join(reps)}"
 
             required_new = {k: v for k, v in fields.required.items()
                                 if (not v.prefix and k not in created) or

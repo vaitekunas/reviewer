@@ -2,7 +2,15 @@
 
 <template>
   <div class="content-area">
-    Workflows
+    <div class="workflow-lists">
+      <workflow-card 
+          v-for="w in workflows" 
+          :name="w.config.name"
+          :methods="methods"
+          :config="w.config"
+          :steps="w.steps">
+      </workflow-card>
+    </div>
 
   </div>
 </template>
@@ -11,11 +19,18 @@
 
 data: function(){
   return {
-    state: global_data.state
+    state: global_data.state,
+    methods: [],
+    workflows: []
   }
 },
 
 methods: {
+},
+
+mounted: async function(){
+  this.workflows = await api_workflows();
+  this.methods = await api_methods();
 },
 
 props: []

@@ -18,8 +18,7 @@
                   :classname="group"
                   :icon="group+'-method'"
                   alt="text"
-                  readonly="true"
-                  no_delete="true">
+                  inactive="true">
             </step>
           </div>
         </div>
