@@ -2,7 +2,16 @@
 
 <template>
   <div class="content-area">
-    Analysis
+    <div v-if="analysis.length > 0" class="workflow-lists">
+      <analysis-card 
+          v-for="a in analysis" 
+          :name="a.config.name"
+          :workflows="a.workflows">
+      </analysis-card>
+    </div>
+    <div v-else class="run-icon-container">
+      <icon class="analysis-icon" icon="analysis"></icon>
+    </div>
 
   </div>
 </template>
@@ -11,12 +20,21 @@
 
 data: function(){
   return {
-    state: global_data.state
+    state: global_data.state,
+    methods: [],
+    analysis: [],
+
   }
 },
 
 methods: {
 },
+
+mounted: async function(){
+  this.analysis = await api_analysis();
+  this.methods = await api_methods();
+},
+
 
 props: []
 </javascript>

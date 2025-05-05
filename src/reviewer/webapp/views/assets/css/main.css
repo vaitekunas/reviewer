@@ -1044,6 +1044,19 @@ button.extract {
   margin-left: 150px;
 }
 
+.analysis-icon {
+  color: var(--color-light-shades);
+  filter: brightness(98%);
+  width: 500px;
+  height: 500px;
+  position: static;
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  margin-left: -250px;
+}
+
+
 .run-saver {
   width: 100%;
   text-align: center;
@@ -1070,6 +1083,8 @@ button.extract {
   width: var(--errors-width);
   height: 100%;
   box-sizing: border-box;
+  pointer-events: none;
+  z-index: 10;
 }
 
 .error {

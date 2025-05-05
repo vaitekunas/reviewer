@@ -2,7 +2,7 @@
 
 <template>
   <div class="content-area">
-    <div class="workflow-lists">
+    <div v-if="workflows.length > 0" class="workflow-lists">
       <workflow-card 
           v-for="w in workflows" 
           :name="w.config.name"
@@ -10,6 +10,9 @@
           :config="w.config"
           :steps="w.steps">
       </workflow-card>
+    </div>
+    <div v-else class="run-icon-container">
+      <icon class="analysis-icon" icon="workflows"></icon>
     </div>
 
   </div>

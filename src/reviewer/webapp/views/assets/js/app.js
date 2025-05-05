@@ -38,6 +38,7 @@ const initialize = async function() {
     { path: "/workflows", component: "page-workflows" },
     { path: "/analysis",  component: "page-analysis" },
     { path: "/run",       component: "page-run" },
+    { path: "/run/:name", component: "page-run" },
   ];
 
   const router = new VueRouter({

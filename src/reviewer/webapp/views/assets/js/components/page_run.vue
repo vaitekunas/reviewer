@@ -223,7 +223,15 @@ watch: {
     }
 
     await this.update_requirements();
+  },
+
+  '$route.query.name': function(val){
+    if(val !== undefined && val != this.selected_analysis){
+      this.selected_analysis = val;
+      this.use_selected_analysis();
+    }
   }
+
 },
 
 mounted: async function(){

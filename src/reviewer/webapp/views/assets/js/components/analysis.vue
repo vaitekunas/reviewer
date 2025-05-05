@@ -10,6 +10,7 @@
                 :steps   = "w.steps"
                 :methods = "methods"
                 :existing_workflows = "existing_workflows"
+                :inactive = "inactive"
                 
                 v-on:start_drag="start_drag(i, $event)"
                 v-on:drag="drag($event)"
@@ -21,7 +22,8 @@
                 v-on:changed="$emit('changed')"></workflow>
     </div>
 
-    <add-button title="+ workflow" 
+    <add-button v-if="!inactive"
+                title="+ workflow" 
                 :choices="existing_workflows"
                 :allow_empty="true"
                 :from_config="true"
@@ -175,5 +177,5 @@ mounted: async function(){
   this.existing_workflows = await api_workflows();
 },
 
-props: ["workflows"]
+props: ["workflows", "inactive"]
 </javascript>

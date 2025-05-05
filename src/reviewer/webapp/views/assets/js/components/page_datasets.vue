@@ -2,7 +2,7 @@
 
 <template>
   <div class="content-area">
-    <div class="dataset-lists">
+    <div v-if="datasets.length > 0" class="dataset-lists">
       <dataset 
         v-for="d in datasets" 
         :name="d.name"
@@ -10,6 +10,9 @@
         :n_columns="d.n_columns"
         :columns="d.columns.split(',')">
       </dataset>
+    </div>
+    <div v-else class="run-icon-container">
+      <icon class="analysis-icon" icon="datasets"></icon>
     </div>
   </div>
 </template>
