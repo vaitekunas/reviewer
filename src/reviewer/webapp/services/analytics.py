@@ -163,12 +163,14 @@ class DefaultAnalyticsService(AnalyticsService):
                             t: Session, 
                             user: UserDTO, 
                             dataset_name: str,
-                            with_data: bool = True) -> Optional[DatasetDTO]:
+                            with_data: bool = True,
+                            max_rows: int | None = None) -> Optional[DatasetDTO]:
 
         return self._d_repo.get_dataset_by_name(t, 
                                                 user.user_id, 
                                                 dataset_name, 
-                                                with_data = with_data)
+                                                with_data = with_data,
+                                                max_rows  = max_rows)
 
     @override
     def register_dataset(self,                               
@@ -306,6 +308,7 @@ class DefaultAnalyticsService(AnalyticsService):
 
         try:
             dataset = Dataset.new(data.data)
+            dataset.partition_train_data(train_part = 0.8)
         except:
             return None
 

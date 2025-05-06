@@ -4,10 +4,12 @@ from dataclasses import asdict, dataclass
 import pickle
 from typing import Any
 
+from sqlalchemy.util import method_is_overridden
+
 from .interface import IConfig, IDataset, ILogger
 from .trait import get_object_id, Identifiable, Configurable
 from .workflow import Workflow
-from .aliases import ResultType, ResultName, AnalysisResults, FieldSchema, AnalysisFields, AnalysisFieldMappings, WorkflowID
+from .aliases import NamedResults, ResultType, ResultName, AnalysisResults, FieldSchema, AnalysisFields, AnalysisFieldMappings, WorkflowID
 from .aliases import AnalysisSchema
 
 from .runtime import Runtime
@@ -99,13 +101,17 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
 
         # Run analysis
         results: AnalysisResults = {}
+        created_results: NamedResults = {}
         for workflow in self._workflows:
             if logger:
                 logger.log(f"Starting workflow '{workflow}'")
 
-            data, result = workflow.run(runtime, data, logger)
+            data, method_results, created_results = workflow.run(runtime = runtime, 
+                                                                 data = data, 
+                                                                 created_named_results = created_results,
+                                                                 logger = logger)
 
-            results[workflow.id] = result
+            results[workflow.id] = method_results
 
         return data, results
 
@@ -140,15 +146,30 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
         return AnalysisFields(required = required, created = created, available = available)
 
     def get_results(self) -> dict[WorkflowID, dict[ResultName, ResultType]]:
-        """Returns the name: type dictionaries of reults for each workflow
+        """Returns the name: type dictionaries of results for each workflow
 
         Returns:
             
         """
         results = {}
+        created = {}
 
         for w in self._workflows:
-            results[w.id] = w.get_results()
+            wresults = w.get_results()
+
+            for name, rtype in wresults.required.items():
+                if name not in created:
+                    raise Exception(f"Required result '{name}' is missing")
+
+                if rtype != created[name]:
+                    raise Exception(f"Required result '{name}' is available, but has a wrong type: {created[name]} (expecting: {rtype})")
+
+            for name in wresults.created.keys():
+                if name in created:
+                    raise Exception(f"Multiple steps create the result named '{name}'")
+
+            results[w.id] = wresults.created
+            created.update(wresults.created)
 
         return results
 

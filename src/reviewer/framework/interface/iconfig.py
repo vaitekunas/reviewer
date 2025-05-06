@@ -52,8 +52,13 @@ class IConfig(ABC):
 
     def update(self, values: dict[str, Any]) -> None:
         for k, v in values.items():
+
             if hasattr(self, k):
                 old_value = getattr(self, k)
+
+                if old_value is None:
+                    old_value = v
+
                 try:
                     setattr(self, k, self._cast(old_value, v))
                 except:

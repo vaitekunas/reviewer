@@ -18,14 +18,16 @@ __all__ = ["get_method_types",
            "create_analysis",
            "modify_analysis",
            "delete_analysis",
-           "run_analysis"
+           "run_analysis",
+
+           "get_results",
+           "get_result_by_name"
            ]
 
 import io
-from fastapi.responses import JSONResponse
 import pandas as pd
 from typing import Optional
-from fastapi import File, HTTPException, Header, Response, UploadFile, status
+from fastapi import File, HTTPException, Header, UploadFile, status
 from sqlalchemy.orm.session import Session
 
 from .. import app, runtime
@@ -264,7 +266,7 @@ def get_dataset_by_name(dataset_name: str,
 
     with runtime.transaction as t:
         user = _get_user(t, session_token)
-        dataset = analytics.get_dataset_by_name(t, user, dataset_name, with_data=True)
+        dataset = analytics.get_dataset_by_name(t, user, dataset_name, with_data=True, max_rows=10)
         
     return dataset
 
@@ -514,6 +516,18 @@ def run_analysis(analysis_name: str,
 ##################################
 # API: results
 ##################################
+
+@app.get("/api/results", tags=["analytics :: results"])
+def get_runs(session_token: str = Header(...)) -> list[RunDTO]:
+
+    # Services
+    analytics = runtime.services.analytics
+
+    with runtime.transaction as t:
+        user    = _get_user(t, session_token)
+        runs = analytics.get_runs(t, user)
+
+    return runs
 
 @app.get("/api/results/{run_id}", tags=["analytics :: results"])
 def get_results(run_id: int,

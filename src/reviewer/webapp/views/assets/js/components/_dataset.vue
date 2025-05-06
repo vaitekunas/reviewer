@@ -25,6 +25,7 @@
     <div v-else>
       <dataset-table :columns="Object.keys(dataset_head)" 
                      :table_data="dataset_head"
+                     :wrappable="true"
                      v-on:close="show_head=false">
       </dataset-table>
     </div>

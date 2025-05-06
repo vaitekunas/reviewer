@@ -55,7 +55,7 @@ methods: {
     this.loading   = false;
 
     if(this.logged_in){
-      this.state.router.push("/analysis");
+      this.state.router.push("/run");
       this.toolbar_title = "Analyses";
     }else{
       this.state.router.push("/");

@@ -7,7 +7,7 @@
         <div class="method-title">
           {{group}}
         </div>
-        <div class="workflow-steps">
+        <div class="workflow-steps wrappable">
           <div v-for="(method_details, method) in group_methods" class="step-wrapper">
             <div class="step-description">
               {{method_details.description}}

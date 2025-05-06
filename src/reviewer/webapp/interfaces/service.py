@@ -200,7 +200,8 @@ class AnalyticsService(Service):
                             t: Session, 
                             user: UserDTO, 
                             dataset_name: str,
-                            with_data: bool = True) -> Optional[DatasetDTO]:
+                            with_data: bool = True,
+                            max_rows: int | None = None) -> Optional[DatasetDTO]:
         raise NotImplementedError()
 
     @abstractmethod

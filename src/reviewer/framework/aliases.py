@@ -1,6 +1,7 @@
 __all__ = ["MethodID", "WorkflowID", "AnalysisID",
            "Result", "ResultType", "ResultName", "NamedResults", "WorkFlowResults", "AnalysisResults",
            "DatasetField", "AnalysisField", "AnalysisFieldMappings",
+           "AnalysisFields", "UsedResults",
            "MethodSchema", "WorkflowSchema", "AnalysisSchema"]
 
 from enum import Enum
@@ -35,6 +36,7 @@ class AnalysisFields:
 
 AnalysisFieldMappings: TypeAlias = dict[AnalysisField, DatasetField]
 
+
 class ResultType(Enum):
     DATASET      = "dataset"
     DATASET_DICT = "dataset_dict"
@@ -61,6 +63,11 @@ ResultName:      TypeAlias = str
 NamedResults:    TypeAlias = dict[ResultName, Result]
 WorkFlowResults: TypeAlias = dict[MethodID, list[Result]]
 AnalysisResults: TypeAlias = dict[WorkflowID, WorkFlowResults]
+
+@dataclass
+class UsedResults:
+    required: dict[ResultName, ResultType]
+    created:  dict[ResultName, ResultType]
 
 @dataclass
 class MethodSchema:

@@ -309,3 +309,46 @@ const api_analyze = async function(analysis_name, analysis_schema) {
   return result;
 };
 
+const api_runs = async function() {
+
+  var result = fetch("/api/results", {
+    method: "GET",
+    headers: get_auth_headers()
+  })
+    .then(response => response.json())
+    .catch(error => {
+      return {};
+    })
+
+  return result;
+};
+
+const api_results = async function(run_id) {
+
+  var result = fetch("/api/results/" + run_id, {
+    method: "GET",
+    headers: get_auth_headers()
+  })
+    .then(response => response.json())
+    .catch(error => {
+      return {};
+    })
+
+  return result;
+};
+
+const api_result = async function(run_id, result_name) {
+
+  var result = fetch("/api/results/" + run_id + "/" + result_name.replace(/\//g,'|'), {
+    method: "GET",
+    headers: get_auth_headers()
+  })
+    .then(response => response.json())
+    .catch(error => {
+      return {};
+    })
+
+  return result;
+};
+
+

@@ -19,7 +19,7 @@
     </div>
     
     <div v-else class="workflow-details">
-     <div>
+     <div class="workflow-details-title">
        <button class="table-closer" v-on:click="show_details=false">
          <icon icon="close"></icon>
        </button>

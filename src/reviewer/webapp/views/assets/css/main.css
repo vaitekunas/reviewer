@@ -283,6 +283,14 @@ button.extract {
   box-shadow: var(--shadow-hover);
 }
 
+td, th {
+    white-space: nowrap;
+}
+
+table.wrappable td, table.wrappable th {
+    white-space: normal;
+}
+
 .toplevel {
   display: flex;
   justify-content: space-around;
@@ -964,6 +972,12 @@ button.extract {
   justify-content: flex-start;
   width: max-content;
 }
+
+.workflow-steps.wrappable {
+  flex-wrap: wrap;
+  width: 100%;
+}
+
 .workflow-steps .step + .step {
   margin-left: 0.25rem;
 }
@@ -1137,6 +1151,7 @@ button.extract {
   padding-bottom: 0;
   width: var(--dataset-card-width);
   height: var(--dataset-card-height);
+  border-radius: var(--border-radius);
   box-sizing: border-box;
   box-shadow: var(--shadow);
   cursor: pointer;
@@ -1238,6 +1253,14 @@ button.extract {
 
 .workflow-details {
   width: 100%;
+  border-bottom: 2px solid var(--color-danger);
+  padding-bottom: 1rem;
+}
+
+.workflow-details-title {
+  padding: 0.25rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 0.5rem;
 }
 
 
@@ -1249,4 +1272,63 @@ button.extract {
   font-size: 25px;
   height: calc(100% - 30px);
   z-index: 1;
+}
+
+.workflow-card-date {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15px;
+  z-index: 1;
+}
+
+.result-row {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.result-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  cursor: pointer;
+  width: min-content;
+  margin: 0.25rem;
+}
+
+
+.result-entry {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+
+.result-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  padding: 0.15rem;
+  border-radius: var(--border-radius);
+  color: var(--color-light-shades);
+  background: none;
+}
+
+.result-link {
+  display: flex;
+  align-items: center;
+  border-radius: var(--border-radius);
+  padding: 0.25rem;
+  background: var(--color-main-brand);
+  color: var(--color-light-shades);
+  margin-bottom: 0.5rem;
+}
+
+
+.result-figure {
+  width: 350px;
+  border: 1px solid var(--color-dark-shades);
+  border-radius: var(--border-radius);
 }

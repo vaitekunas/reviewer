@@ -9,13 +9,15 @@ __all__ = ["ResultRepository"]
 
 import os
 import json
-from sqlalchemy import ForeignKey, Integer, String, and_, func, true
+import base64
+from datetime import datetime, timezone
+from sqlalchemy import ForeignKey, Integer, String, DateTime, and_, func, true
 from sqlalchemy.orm import mapped_column, Session
 from typing import Any, Optional
 
 from . import ORM_BASE
 from ..interfaces import Repository
-from ..dto import RawResultDTO, RawResultsDTO, ResultType, ResultDTO, ResultsDTO, RunDTO
+from ..dto import RawResultsDTO, ResultType, ResultDTO, ResultsDTO, RunDTO
 
 from ...framework import Figure, Dataset
 from ...framework.aliases import AnalysisSchema
@@ -24,9 +26,10 @@ from ...framework.aliases import AnalysisSchema
 class Run(ORM_BASE):
     __tablename__ = "meta_run"
 
-    id      = mapped_column(Integer, primary_key=True)
-    user_id = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
-    name    = mapped_column(String,  nullable=False)
+    id         = mapped_column(Integer, primary_key=True)
+    user_id    = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
+    name       = mapped_column(String,  nullable=False)
+    created_at = mapped_column(DateTime)
 
 class Result(ORM_BASE):
     __tablename__ = "meta_result"
@@ -79,21 +82,23 @@ class ResultRepository(Repository):
         with open(fullpath, "wb") as f:
             f.write(value.to_bytes())
 
-    def _load_dataset(self, user_id: int, run_id: int, filename: str) -> dict[str, list[Any]]:
+    def _load_dataset(self, user_id: int, run_id: int, filename: str, decimals: int = 2) -> dict[str, list[Any]]:
         fullpath = self._get_clean_result_name(user_id, run_id, filename)
 
         with open(fullpath, "r") as f:
-            value = json.load(f)
+            value = {k: [vi if not isinstance(vi, float) else round(vi, decimals) for vi in v] for k, v in json.load(f).items()}
 
         return value
 
-    def _load_figure(self, user_id: int, run_id: int, filename: str) -> bytes:
+    def _load_figure(self, user_id: int, run_id: int, filename: str) -> str:
         fullpath = self._get_clean_result_name(user_id, run_id, filename)
 
         with open(fullpath, "rb") as f:
             value = f.read()
 
-        return value
+        ext = fullpath.split(".")[-1]
+
+        return f"data:image/{ext};base64," + base64.b64encode(value).decode("ascii")
 
     def get_run_count(self, 
                       session: Session,
@@ -117,8 +122,15 @@ class ResultRepository(Repository):
                  user_id: int) -> list[RunDTO]:
 
         r = (session
-                .query(Run)
+                .query(Run) 
                 .filter(Run.user_id == user_id)
+                .join(Results, Results.run_id == Run.id)
+                .with_entities(Run.id, 
+                               Run.name,
+                               Run.created_at,
+                               func.count(func.distinct(Results.result_id)).label("results"))
+                .group_by(Run.id)
+                .order_by(Run.created_at.desc())
                 .all())
 
         runs = []
@@ -127,9 +139,11 @@ class ResultRepository(Repository):
                 with open(self._get_analysis_filepath(user_id, ri.id), "r") as f:
                     analysis_schema = AnalysisSchema.from_dict(json.load(f))
 
-                runs.append(RunDTO(run_id = ri.id, 
-                                   name   = ri.name,
-                                   analysis_schema = analysis_schema))
+                runs.append(RunDTO(run_id          = ri.id, 
+                                   name            = ri.name,
+                                   analysis_schema = analysis_schema,
+                                   result_count    = ri.results,
+                                   created_at_utc  = ri.created_at))
             except:
                 pass
 
@@ -143,7 +157,7 @@ class ResultRepository(Repository):
                   results:  RawResultsDTO) -> int:
 
         # Create database record
-        r = Run(user_id = user_id, name = name) 
+        r = Run(user_id = user_id, name = name, created_at = datetime.now(timezone.utc)) 
         session.add(r)
         session.flush()
 
@@ -345,8 +359,10 @@ class ResultRepository(Repository):
         """
         Returns a single result by its name, if it w_exists
         """
-
+        
         # Get record
+        result_name = result_name.replace("|", "/")
+
         record = (session
                     .query(Result)
                     .join(Results, Results.result_id == Result.id)
@@ -361,10 +377,10 @@ class ResultRepository(Repository):
 
         # Load file value
         if record.result_type == "dataset":
-            value = self._load_dataset(user_id, run_id, record.filename)
+            value = self._load_dataset(user_id, run_id, record.filename.replace("/","_"))
 
         elif record.result_type == "figure":
-            value = self._load_figure(user_id, run_id, record.filename)
+            value = self._load_figure(user_id, run_id, record.filename.replace("/","_"))
 
         else:
             return None

@@ -4,10 +4,12 @@ import importlib
 from dataclasses import asdict, dataclass
 from typing import Any, override, get_args
 
+from nltk.chunk import named_entity
+
 from .interface import IDataset, IMethod, IConfig, ILogger 
 from .interface import IPreprocessor, IEmbedder, IAnalyser, IPredictor, IEvaluator, IVisualizer, IResultCreator
 from .trait import get_object_id, Identifiable, Configurable
-from .aliases import NamedResults, WorkFlowResults, FieldSchema, AnalysisField, AnalysisFields, Result, ResultType, ResultName
+from .aliases import NamedResults, UsedResults, WorkFlowResults, FieldSchema, AnalysisField, AnalysisFields, Result
 from .aliases import MethodSchema, WorkflowSchema
 
 from .runtime import Runtime
@@ -90,7 +92,8 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
     def run(self, 
             runtime: Runtime, 
             data:    IDataset,
-            logger:  ILogger | None = None) -> tuple[IDataset, WorkFlowResults]:
+            created_named_results: NamedResults | None = None,
+            logger:  ILogger | None = None) -> tuple[IDataset, WorkFlowResults, NamedResults]:
         """
         Runs through all steps in the workflow and applies them
         on the dataset. A step is allowed to have several roles
@@ -103,7 +106,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
             data = data.apply_filter(filter)
 
         results:       WorkFlowResults = {}
-        named_results: NamedResults = {}
+        named_results: NamedResults = created_named_results or {}
 
         def organize_results(step_results: list[Result]) -> None:
             results[mid] += step_results
@@ -137,22 +140,23 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
                 data = step.predict(data)
 
             if isinstance(step, IEvaluator):
-                step_results = step.evaluate(data, new_dataset = runtime.new_dataset)
+                step_results = step.evaluate(data = data, 
+                                             new_dataset = runtime.new_dataset)
                 organize_results(step_results)
 
             if isinstance(step, IVisualizer):
-                step_results = step.visualize(data, 
-                                              named_results, 
-                                              runtime.palette(),
-                                              runtime.colormap,
-                                              runtime.new_figure)
+                step_results = step.visualize(data       = data, 
+                                              results    = named_results, 
+                                              palette    = runtime.palette(),
+                                              colormap   = runtime.colormap,
+                                              new_figure = runtime.new_figure)
                 organize_results(step_results)
 
         # Drop unnecessary columns
         if (drop_cols := self._config.post_drop_columns):
             data = data.drop_fields(drop_cols)
 
-        return data, results
+        return data, results, named_results
 
     def get_fields(self) -> AnalysisFields:
 
@@ -196,8 +200,9 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
                               created   = created_fields, 
                               available = available_fields)
 
-    def get_results(self) -> dict[ResultName, ResultType]:
-        results = {}
+    def get_results(self) -> UsedResults:
+        required = {}
+        created  = {}
 
         for step in self._steps:
             if not isinstance(step, IResultCreator):
@@ -205,20 +210,19 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
 
             # Validate required results
             for name, rtype in step.get_required_results().items():
-                if name not in results:
-                    raise Exception(f"Required result '{name}' not available")
+                if name in required and required[name] != rtype:
+                    raise Exception(f"Several steps require result '{name}' but with different types: '{rtype}' and '{required[name]}'")
 
-                if rtype != results[name]:
-                    raise Exception(f"Unexpected result type for '{name}'. Expecting '{rtype}', got '{results[name]}'")
+                required[name] = rtype
 
             # Validate created results
             for name, rtype in step.get_created_results().items():
-                if name in results:
+                if name in created:
                     raise Exception(f"Another step creates a result named '{name}'")
 
-                results[name] = rtype
+                created[name] = rtype
 
-        return results
+        return UsedResults(required = required, created = created)
 
     def to_schema(self) -> WorkflowSchema:
 

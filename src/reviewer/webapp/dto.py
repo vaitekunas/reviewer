@@ -181,12 +181,14 @@ class RunDTO:
     run_id:          int
     name:            str
     analysis_schema: AnalysisSchema
+    result_count:    int
+    created_at_utc:  int
 
 @dataclass 
 class ResultDTO:
     result_name: str
     result_type: str
-    value:       bytes | dict[str, list[Any]]
+    value:       str | dict[str, list[Any]]
 
 @dataclass 
 class ResultsDTO:

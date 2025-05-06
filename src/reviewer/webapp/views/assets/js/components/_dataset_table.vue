@@ -3,7 +3,7 @@
 <template>                                                                      
   <div>                                                    
                                                                                 
-    <table class="stats-table table-desc">                                      
+    <table class="stats-table table-desc" :class="{wrappable: wrappable}">                                      
                                                                                 
       <thead>                                                                   
         <tr>                                                                    
@@ -47,5 +47,5 @@ watch: {
                                                                                 
 },                                                                              
                                                                                 
-props: ["columns", "table_data"]                                      
+props: ["columns", "table_data", "wrappable"]                                      
 </javascript>                   

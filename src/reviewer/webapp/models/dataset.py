@@ -86,7 +86,8 @@ class DatasetRepository(Repository):
                             session:      Session,
                             user_id:      int,
                             dataset_name: str,
-                            with_data:    bool = True) -> Optional[DatasetDTO]:
+                            with_data:    bool = True,
+                            max_rows:     int | None = None) -> Optional[DatasetDTO]:
 
         """
         Returns a single dataset by its name, if it exists
@@ -112,7 +113,11 @@ class DatasetRepository(Repository):
 
         # Load csv file
         if with_data:
-            df = pd.read_csv(dpath, sep=";", decimal=",", encoding="utf-8").head(10)
+            df = pd.read_csv(dpath, sep=";", decimal=",", encoding="utf-8")
+
+            if max_rows:
+                df = df.head(max_rows)
+
             data = df.to_dict("list")
         else:
             data = None
