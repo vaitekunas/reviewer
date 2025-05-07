@@ -298,6 +298,7 @@ class DefaultAnalyticsService(AnalyticsService):
                      user:          UserDTO,
                      analysis_name: str,
                      dataset_name:  str,
+                     max_rows:      int | None,
                      mapping:       dict[str, str],
                      analysis:      AnalysisDTO,
                      tracker:       AnalysisTracker) -> Optional[RawResultsDTO]:
@@ -309,6 +310,8 @@ class DefaultAnalyticsService(AnalyticsService):
 
         try:
             dataset = Dataset.new(data.data)
+            if max_rows:
+                dataset = dataset.head(max_rows)
             dataset.partition_train_data(train_part = 0.8)
         except:
             return None

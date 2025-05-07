@@ -262,6 +262,7 @@ class AnalyticsService(Service):
                            user:          UserDTO,
                            analysis_name: str,
                            dataset_name:  str,
+                           max_rows:      int | None,
                            mapping:       dict[str, str],
                            analysis:      AnalysisDTO,
                            tracker:       AnalysisTracker) -> Optional[RawResultsDTO]:

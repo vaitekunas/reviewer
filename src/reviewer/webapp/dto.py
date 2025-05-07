@@ -177,6 +177,7 @@ class AnalysisFieldsDTO(BaseModel):
 @dataclass 
 class RunSetupDTO:
     dataset_name: str
+    max_rows:     int | None
     mapping:      dict[str, str]
     analysis:     AnalysisDTO
 

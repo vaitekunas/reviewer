@@ -161,6 +161,18 @@ class Dataset(IDataset):
         return new_ds
 
     @override
+    def head(self, n: int) -> 'Dataset':
+        if n > 0:
+            new_ds = Dataset(self._df.head(n).copy())
+        else:
+            return self.copy()
+
+        if self._train_part != 1:
+            new_ds.partition_train_data(train_part = self._train_part)
+
+        return new_ds
+
+    @override
     def to_dict(self) -> dict[str, list[Any]]:
         return self._df.to_dict("list")
 

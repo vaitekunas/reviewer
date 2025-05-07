@@ -533,6 +533,7 @@ async def run_analysis(analysis_name: str,
                                        user          = user, 
                                        analysis_name = analysis_name,
                                        dataset_name  = run_setup.dataset_name, 
+                                       max_rows      = run_setup.max_rows,
                                        mapping       = run_setup.mapping, 
                                        analysis      = run_setup.analysis,
                                        tracker       = tracker)

@@ -14,6 +14,9 @@
           {{d.name}}
         </option>
       </select>
+      <div v-if="dataset_name">
+        Max rows: <input v-model="max_rows" v-on:change="$emit('max-row-choice', max_rows)"/>
+      </div>
 
     </div>
     
@@ -116,5 +119,5 @@ mounted: async function(){
   }
 },
 
-props: ["dataset_name"]
+props: ["dataset_name", "max_rows"]
 </javascript>

@@ -39,6 +39,8 @@
         <card title="Dataset" icon="datasets">
           <dataset-chooser 
             :dataset_name="dataset"
+            :max_rows="max_rows"
+            v-on:max-row-choice="max_rows = $event"
             v-on:dataset-choice="update_dataset($event)">
           </dataset-chooser>
         </card>
@@ -82,6 +84,7 @@ data: function(){
     title:             "",
     dataset:           null,
     dataset_info:      null,
+    max_rows:          null,
     required_fields:   {},
     workflows:         null,
     mapping:           {},
@@ -143,9 +146,11 @@ methods: {
 
   run: async function(){
     var schema = {dataset_name: this.dataset,
-                  mapping: JSON.parse(JSON.stringify(this.mapping)),
-                  analysis: JSON.parse(JSON.stringify(this.get_schema()))};
+                  max_rows:     this.max_rows,
+                  mapping:      JSON.parse(JSON.stringify(this.mapping)),
+                  analysis:     JSON.parse(JSON.stringify(this.get_schema()))};
 
+    console.log(schema);
     this.state.running = true;
 
     var result = await api_analyze(this.title, schema) || {};

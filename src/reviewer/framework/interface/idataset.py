@@ -48,6 +48,10 @@ class IDataset(ABC):
     def copy(self) -> 'IDataset':
         raise NotImplementedError("abstract method")
 
+    @abstractmethod
+    def head(self, n: int) -> 'IDataset':
+        raise NotImplementedError("abstract method")
+
     @property
     @abstractmethod
     def fields(self) -> dict[str, Type[Any]]:
