@@ -1,4 +1,5 @@
 import logging
+import socketio
 from fastapi import FastAPI
 
 from .models import *
@@ -11,6 +12,8 @@ logging.basicConfig(
     format='%(asctime)s [%(levelname)s] %(name)-12s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
+
+sio = socketio.AsyncServer(async_mode='asgi')
 
 app = FastAPI(
     title="Customer review analytics",
@@ -31,5 +34,7 @@ app = FastAPI(
         "url": "https://choosealicense.com/licenses/gpl-3.0/",
     },
         )
+
+socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
 
 runtime = Runtime(ORM_BASE)

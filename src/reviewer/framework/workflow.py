@@ -4,12 +4,10 @@ import importlib
 from dataclasses import asdict, dataclass
 from typing import Any, override, get_args
 
-from nltk.chunk import named_entity
-
 from .interface import IDataset, IMethod, IConfig, ILogger 
 from .interface import IPreprocessor, IEmbedder, IAnalyser, IPredictor, IEvaluator, IVisualizer, IResultCreator
 from .trait import get_object_id, Identifiable, Configurable
-from .aliases import NamedResults, UsedResults, WorkFlowResults, FieldSchema, AnalysisField, AnalysisFields, Result
+from .aliases import NamedResults, UsedResults, WorkFlowResults, FieldSchema, AnalysisField, AnalysisFields, Result, WorkflowTracker
 from .aliases import MethodSchema, WorkflowSchema
 
 from .runtime import Runtime
@@ -93,6 +91,7 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
             runtime: Runtime, 
             data:    IDataset,
             created_named_results: NamedResults | None = None,
+            tracker: WorkflowTracker| None = None,
             logger:  ILogger | None = None) -> tuple[IDataset, WorkFlowResults, NamedResults]:
         """
         Runs through all steps in the workflow and applies them
@@ -112,9 +111,12 @@ class Workflow(Identifiable, Configurable[WorkflowConfig]):
             results[mid] += step_results
             named_results.update({r.result_name: r for r in step_results})
 
-        for step in self._steps:
+        for sid, step in enumerate(self._steps):
             if logger:
                 logger.log(f"Running step '{step.name}'")
+
+            if tracker:
+                tracker(sid, step.name)
 
             results[mid := step.id] = []
 

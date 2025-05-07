@@ -111,6 +111,8 @@ class Dataset(IDataset):
 
         self._df[field] = values
 
+        self._df = self._df.copy() # prevent fragmentation
+
     @override
     def partition_train_data(self, train_part: float) -> None:
         if self._train_part != 1:

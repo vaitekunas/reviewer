@@ -8,7 +8,7 @@
         :name="d.name"
         :n_rows="d.n_rows"
         :n_columns="d.n_columns"
-        :columns="d.columns.split(',')">
+        :columns="d.columns">
       </dataset>
     </div>
     <div v-else class="run-icon-container">
@@ -31,6 +31,11 @@ methods: {
 
 mounted: async function(){
   this.datasets = await api_datasets();
+
+  var that = this;
+  socket.on("dataset", async function(data) {
+    that.datasets = await api_datasets();
+  });
 },
 
 props: []

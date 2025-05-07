@@ -3,6 +3,7 @@ var app = null;
 const global_data = {
   state: {
     router: null,
+    running: false,
     
     // Icons 
     // https://www.untitledui.com/free-icons/layout

@@ -4,7 +4,7 @@ import os
 import re
 
 
-COMPONENT_DIR = "./views/assets/js/components"
+COMPONENT_DIR = "webapp/views/assets/js/components"
 
 
 def assemble_component(filename: str) -> tuple[str, str]:

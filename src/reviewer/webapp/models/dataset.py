@@ -77,7 +77,7 @@ class DatasetRepository(Repository):
             datasets.append(DatasetDTO(name      = d.name,
                                        n_rows    = d.n_rows,
                                        n_columns = d.n_columns,
-                                       columns   = d.columns,
+                                       columns   = d.columns.split(","),
                                        data      = None))
 
         return datasets

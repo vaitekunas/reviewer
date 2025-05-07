@@ -55,6 +55,9 @@
   --color-warning: rgb(237, 128, 18);
   --color-danger:  rgb(230, 57, 70);
 
+  --color-pulse-1:  rgba(230, 57, 70, 0.7);
+  --color-pulse-2:  rgba(230, 57, 70, 0);
+
   --card-color-1: #457b9d;
   --card-color-2:	#3f7191;
   --card-color-3:	#3a6785;
@@ -788,6 +791,23 @@ table.wrappable td, table.wrappable th {
   min-width: max-content;
 }
 
+
+.step.running {
+  animation: pulse-border 1s infinite;
+}
+
+@keyframes pulse-border {
+  0% {
+    box-shadow: 0 0 0 0 var(--color-pulse-1);
+  }
+  70% {
+    box-shadow: 0 0 0 10px var(--color-pulse-2);
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(color-pulse-2);
+  }
+}
+
 .dragger {
   position: absolute;
   left: 1px;
@@ -1331,4 +1351,23 @@ table.wrappable td, table.wrappable th {
   width: 350px;
   border: 1px solid var(--color-dark-shades);
   border-radius: var(--border-radius);
+}
+
+.running-shield {
+  position: fixed;
+  width: 300px;
+  left: 50%;
+  margin-left: -150px;
+  top: 0;
+  text-align: center;
+  background: var(--color-danger);
+  color: var(--color-light-shades);
+  padding: 1rem;
+  border-radius: 0 0 1rem 1rem;
+  animation: pulse-border 1s infinite;
+  display: none;
+}
+
+.running-shield.active {
+  display: block;
 }

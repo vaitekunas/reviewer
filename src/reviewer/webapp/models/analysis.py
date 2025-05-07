@@ -15,7 +15,7 @@ from typing import Optional
 
 from . import ORM_BASE
 from ..interfaces import Repository
-from ..dto import AnalysisDTO
+from ..dto import WorkflowDTO, AnalysisDTO
 
 
 class Analysis(ORM_BASE):
@@ -74,7 +74,11 @@ class AnalysisRepository(Repository):
             # Load schema file
             with open(wpath, "r") as f:
                 try:
-                    analysis = AnalysisDTO(**json.load(f))
+                    raw_dict = json.load(f)
+
+                    config = raw_dict["config"]
+                    workflows = [WorkflowDTO(**w) for w in raw_dict["workflows"]]
+                    analysis = AnalysisDTO(config = config, workflows = workflows)
                 except:
                     continue
 

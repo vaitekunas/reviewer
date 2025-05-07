@@ -4,12 +4,10 @@ from dataclasses import asdict, dataclass
 import pickle
 from typing import Any
 
-from sqlalchemy.util import method_is_overridden
-
 from .interface import IConfig, IDataset, ILogger
 from .trait import get_object_id, Identifiable, Configurable
 from .workflow import Workflow
-from .aliases import NamedResults, ResultType, ResultName, AnalysisResults, FieldSchema, AnalysisFields, AnalysisFieldMappings, WorkflowID
+from .aliases import AnalysisTracker, NamedResults, ResultType, ResultName, AnalysisResults, FieldSchema, AnalysisFields, AnalysisFieldMappings, WorkflowID
 from .aliases import AnalysisSchema
 
 from .runtime import Runtime
@@ -68,6 +66,7 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
             runtime: Runtime,
             data:    IDataset, 
             mapping: AnalysisFieldMappings,
+            tracker: AnalysisTracker | None = None,
             logger:  ILogger | None = None) -> tuple[IDataset, AnalysisResults]:
 
         """Runs an analysis
@@ -102,14 +101,19 @@ class Analysis(Identifiable, Configurable[AnalysisConfig]):
         # Run analysis
         results: AnalysisResults = {}
         created_results: NamedResults = {}
-        for workflow in self._workflows:
+        for wid, workflow in enumerate(self._workflows):
             if logger:
                 logger.log(f"Starting workflow '{workflow}'")
+
+            def w_tracker(sid: int, name: str) -> None:
+                if tracker:
+                    tracker(wid, sid, name)
 
             data, method_results, created_results = workflow.run(runtime = runtime, 
                                                                  data = data, 
                                                                  created_named_results = created_results,
-                                                                 logger = logger)
+                                                                 tracker = w_tracker,
+                                                                 logger  = logger)
 
             results[workflow.id] = method_results
 

@@ -19,8 +19,8 @@ from . import ORM_BASE
 from ..interfaces import Repository
 from ..dto import RawResultsDTO, ResultType, ResultDTO, ResultsDTO, RunDTO
 
-from ...framework import Figure, Dataset
-from ...framework.aliases import AnalysisSchema
+from reviewer.framework import Figure, Dataset
+from reviewer.framework.aliases import AnalysisSchema
 
 
 class Run(ORM_BASE):

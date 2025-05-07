@@ -2,7 +2,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.pool import SingletonThreadPool
 
-from . import app, runtime
+from . import app, socket_app, runtime
 
 from .services    import *
 from .controllers import *
@@ -10,7 +10,7 @@ from .utilities   import prepare_workdir
 
 # Application parameters
 WORK_DIR        = os.path.expanduser(os.environ.get("WORK_DIR", "~/reviewer"))
-METHOD_REGISTRY = os.environ.get("METHOD_REGISTRY", "method_registry.json")
+METHOD_REGISTRY = os.environ.get("METHOD_REGISTRY", "webapp/method_registry.json")
 DB_NAME         = os.environ.get("DB_NAME", "reviews.sqlite")
 SESSION_TTL     = os.environ.get("SESSION_TTL", 60*60*24)
 LLM_HOST        = os.environ.get("LLM_HOST", "localhost:11434")

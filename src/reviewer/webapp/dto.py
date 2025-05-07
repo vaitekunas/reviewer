@@ -30,6 +30,10 @@ __all__ = [ "MethodType",
             "StatisticsDTO",
            ]
 
+from datetime import datetime
+import sys 
+sys.path.insert(0,"../")
+
 import importlib
 from enum import Enum
 from dataclasses import dataclass, asdict
@@ -37,14 +41,14 @@ from typing import Any, Optional, Type, TypeAlias, TypeVar
 
 from pydantic import BaseModel, model_serializer
 
-from ..framework.interface import IConfig, IMethod
+from reviewer.framework.interface import IConfig, IMethod
 
 # Foreign IDs
-from ..framework.aliases import AnalysisFields, MethodID, ResultName, WorkflowID, AnalysisID
+from reviewer.framework.aliases import AnalysisFields, MethodID, ResultName, WorkflowID, AnalysisID
 
 # Foreign DTOs
-from ..framework.aliases import Result as RawResultDTO, ResultType
-from ..framework.aliases import AnalysisSchema, AnalysisResults as RawResultsDTO
+from reviewer.framework.aliases import Result as RawResultDTO, ResultType
+from reviewer.framework.aliases import AnalysisSchema, AnalysisResults as RawResultsDTO
 
 
 class MethodType(Enum):
@@ -182,7 +186,7 @@ class RunDTO:
     name:            str
     analysis_schema: AnalysisSchema
     result_count:    int
-    created_at_utc:  int
+    created_at_utc:  datetime
 
 @dataclass 
 class ResultDTO:

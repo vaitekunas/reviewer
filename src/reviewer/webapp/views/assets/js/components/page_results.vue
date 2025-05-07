@@ -32,6 +32,11 @@ methods: {
 
 mounted: async function(){
   this.runs = await api_runs();
+
+  var that = this;
+  socket.on("result", async function(data) {
+    that.runs = await api_runs();
+  });
 },
 
 props: []

@@ -2,7 +2,7 @@
 
 <template>
   <div class="step" 
-    :class="classname" 
+    :class="classes" 
     v-on:click="configure = true"
     :draggable="!inactive"
     @dragstart="emit_start_drag"
@@ -60,6 +60,15 @@ data: function(){
   }
 },
 
+computed: {
+  classes: function(){
+    var classes = {};
+    classes[this.classname] = true;
+    classes["running"] = this.state.running && this.running;
+
+    return classes
+  }
+},
 
 methods: {
 
@@ -86,5 +95,5 @@ methods: {
 
 },
 
-props: ["idx", "title", "config", "icon", "classname", "inactive"]
+props: ["idx", "title", "config", "icon", "classname", "inactive", "running"]
 </javascript>

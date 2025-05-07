@@ -3,14 +3,14 @@
 ## Startup
 
 ```shell
-cd src/reviewer/webapp
-fastapi run app.py
+cd src/reviewer
+uvicorn webapp.app:socket_app --timeout-keep-alive 6000 
 ```
 
 To start the application in development mode:
 ```
 cd src/reviewer/webapp
-ENV=dev fastapi run app.py
+ENV=dev uvicorn webapp.app:socket_app --timeout-keep-alive 6000 --reload
 ```
 
 Icons: [Untitled UI](https://www.untitledui.com/free-icons)

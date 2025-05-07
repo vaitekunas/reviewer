@@ -12,13 +12,13 @@ from ..dto import *
 from ..interfaces import AnalyticsService
 from ..models import WorkflowRepository, DatasetRepository, AnalysisRepository, ResultRepository
 
-from ...framework.interface import IConfig
-from ...framework.workflow  import Workflow
-from ...framework.analysis  import Analysis
-from ...framework.dataset   import Dataset
-from ...framework.figure    import Figure
-from ...framework.runtime   import Runtime as AnalysisRuntime
-from ...framework.aliases   import WorkflowSchema, AnalysisSchema
+from reviewer.framework.interface import IConfig
+from reviewer.framework.workflow  import Workflow
+from reviewer.framework.analysis  import Analysis
+from reviewer.framework.dataset   import Dataset
+from reviewer.framework.figure    import Figure
+from reviewer.framework.runtime   import Runtime as AnalysisRuntime
+from reviewer.framework.aliases   import AnalysisTracker, WorkflowSchema, AnalysisSchema
 
 
 T = TypeVar("T", bound=IConfig)
@@ -299,7 +299,8 @@ class DefaultAnalyticsService(AnalyticsService):
                      analysis_name: str,
                      dataset_name:  str,
                      mapping:       dict[str, str],
-                     analysis:      AnalysisDTO) -> Optional[RawResultsDTO]:
+                     analysis:      AnalysisDTO,
+                     tracker:       AnalysisTracker) -> Optional[RawResultsDTO]:
                      
         # Get data
         data = self.get_dataset_by_name(t, user, dataset_name)
@@ -329,7 +330,8 @@ class DefaultAnalyticsService(AnalyticsService):
         # Run analysis
         _, results = analyzer.run(runtime = analysis_runtime, 
                                   data    = dataset, 
-                                  mapping = mapping)
+                                  mapping = mapping,
+                                  tracker = tracker)
 
         # Save results
         self.register_results(t, 

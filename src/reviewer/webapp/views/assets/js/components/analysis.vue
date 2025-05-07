@@ -11,6 +11,8 @@
                 :methods = "methods"
                 :existing_workflows = "existing_workflows"
                 :inactive = "inactive"
+
+                :active_step_idx = "active_workflow_idx == i ? active_step_idx : null"
                 
                 v-on:start_drag="start_drag(i, $event)"
                 v-on:drag="drag($event)"
@@ -49,6 +51,9 @@ data: function(){
     drag_orig_y: null,
     drag_offset: null,
     drag_idx: null,
+
+    active_workflow_idx: null,
+    active_step_idx:     null,
   }
 },
 
@@ -173,8 +178,26 @@ methods: {
 },
 
 mounted: async function(){
+  var that = this;
+
   this.methods            = await api_methods();
   this.existing_workflows = await api_workflows();
+
+  socket.on("workflow", async function(data) {
+    that.existing_workflows = await api_workflows();
+    that.methods = await api_methods();
+  });
+
+  socket.on("step", function(data) {
+    that.active_workflow_idx = data.workflow_idx;
+    that.active_step_idx     = data.step_idx;
+  });
+
+  socket.on("result", async function(data) {
+    that.active_workflow_idx = null;
+    that.active_step_idx     = null;
+  });
+
 },
 
 props: ["workflows", "inactive"]

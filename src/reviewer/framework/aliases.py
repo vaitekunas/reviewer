@@ -2,11 +2,15 @@ __all__ = ["MethodID", "WorkflowID", "AnalysisID",
            "Result", "ResultType", "ResultName", "NamedResults", "WorkFlowResults", "AnalysisResults",
            "DatasetField", "AnalysisField", "AnalysisFieldMappings",
            "AnalysisFields", "UsedResults",
-           "MethodSchema", "WorkflowSchema", "AnalysisSchema"]
+           "MethodSchema", "WorkflowSchema", "AnalysisSchema",
+           "AnalysisTracker", "WorkflowTracker"]
 
 from enum import Enum
-from typing import Any, Type, TypeAlias, get_args
+from typing import Any, Type, TypeAlias, Callable, get_args
 from dataclasses import asdict, dataclass
+
+AnalysisTracker: TypeAlias = Callable[[int, int, str], None] 
+WorkflowTracker: TypeAlias = Callable[[int, str], None] 
 
 MethodID:        TypeAlias = str
 WorkflowID:      TypeAlias = str

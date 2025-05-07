@@ -146,7 +146,16 @@ methods: {
                   mapping: JSON.parse(JSON.stringify(this.mapping)),
                   analysis: JSON.parse(JSON.stringify(this.get_schema()))};
 
-    var result = await api_analyze(this.title, schema);
+    this.state.running = true;
+
+    var result = await api_analyze(this.title, schema) || {};
+    console.log("result received");
+
+    if(Object.keys(result).indexOf("detail") >= 0){
+      this.state.error_messages.push(result.detail);
+    }
+
+    this.state.running = false;
   },
 
   save: async function(){
@@ -235,7 +244,14 @@ watch: {
 },
 
 mounted: async function(){
+  var that = this;
+
   this.analyses = await api_analysis();
+
+  socket.on("analysis", async function(data) {
+    that.analysis = await api_analysis();
+  });
+
 },
 
 props: []

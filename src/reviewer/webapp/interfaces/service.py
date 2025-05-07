@@ -11,7 +11,8 @@ from typing import Any, Optional, Type, TypeVar
 
 from sqlalchemy.orm import Session
 from ..dto import *
-from ...framework.interface import IConfig, IMethod
+from reviewer.framework.interface import IConfig, IMethod
+from reviewer.framework.aliases import AnalysisTracker
 
 T = TypeVar("T", bound=IConfig)
 
@@ -257,12 +258,13 @@ class AnalyticsService(Service):
 
     @abstractmethod
     def run_analysis(self, 
-                     t:             Session,
-                     user:          UserDTO,
-                     analysis_name: str,
-                     dataset_name:  str,
-                     mapping:       dict[str, str],
-                     analysis:      AnalysisDTO) -> Optional[RawResultsDTO]:
+                           t:             Session,
+                           user:          UserDTO,
+                           analysis_name: str,
+                           dataset_name:  str,
+                           mapping:       dict[str, str],
+                           analysis:      AnalysisDTO,
+                           tracker:       AnalysisTracker) -> Optional[RawResultsDTO]:
         raise NotImplementedError()
 
     @abstractmethod

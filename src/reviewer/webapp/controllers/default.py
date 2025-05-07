@@ -9,7 +9,7 @@ from .. import app
 from ..views import get_components
 
 
-app.mount("/assets", StaticFiles(directory="./views/assets"), name="static files")
+app.mount("/assets", StaticFiles(directory="webapp/views/assets"), name="static files")
 
 
 @app.get("/", response_class=HTMLResponse, tags=["frontend"])
@@ -17,7 +17,7 @@ def index():
     """
     Returns index html file
     """
-    with open("./views/index.html", "r", encoding="utf-8") as f:
+    with open("webapp/views/index.html", "r", encoding="utf-8") as f:
         return f.read()
 
 

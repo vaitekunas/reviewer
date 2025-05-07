@@ -32,6 +32,7 @@
             :title="s.name" 
             :config="s.config" 
             :classname="method_types[s.name]"
+            :running="active_step_idx == i"
 
             v-on:start_drag="start_drag(i, $event)"
             v-on:drag="drag($event)"
@@ -209,5 +210,5 @@ watch: {
 },
 
 
-props: ["idx", "methods", "existing_workflows", "config", "steps", "inactive"]
+props: ["idx", "methods", "existing_workflows", "config", "steps", "inactive", "active_step_idx"]
 </javascript>

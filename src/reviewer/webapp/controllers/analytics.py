@@ -25,12 +25,14 @@ __all__ = ["get_method_types",
            ]
 
 import io
+from queue import Queue
+import threading
 import pandas as pd
 from typing import Optional
 from fastapi import File, HTTPException, Header, UploadFile, status
 from sqlalchemy.orm.session import Session
 
-from .. import app, runtime
+from .. import app, sio, runtime
 from ..dto  import *
 
 logger = runtime.logger.getChild("API/analytics")
@@ -162,7 +164,7 @@ def get_workflow_by_name(workflow_name: str,
     return workflow
 
 @app.post("/api/workflow", tags=["analytics :: workflow"])
-def create_workflow(workflow:      WorkflowDTO,
+async def create_workflow(workflow:      WorkflowDTO,
                     session_token: str = Header(...)) -> None:
     """
     Create a new workflow.
@@ -179,6 +181,8 @@ def create_workflow(workflow:      WorkflowDTO,
         try:
             analytics.register_workflow(t, user, workflow)
             t.commit()
+
+            await sio.emit("workflow", {})
         except Exception as e:
             t.rollback()
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
@@ -187,7 +191,7 @@ def create_workflow(workflow:      WorkflowDTO,
     return None
 
 @app.put("/api/workflow/{workflow_name}", tags=["analytics :: workflow"])
-def modify_workflow(workflow_name: str,
+async def modify_workflow(workflow_name: str,
                     workflow:      WorkflowDTO,
                     session_token: str = Header(...)) -> None:
     """
@@ -204,6 +208,8 @@ def modify_workflow(workflow_name: str,
         try:
             analytics.register_workflow(t, user, workflow, name = workflow_name, overwrite = True)
             t.commit()
+
+            await sio.emit("workflow", {})
         except Exception as e:
             t.rollback()
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
@@ -212,7 +218,7 @@ def modify_workflow(workflow_name: str,
     return None
 
 @app.delete("/api/workflow/{workflow_name}", tags=["analytics :: workflow"])
-def delete_workflow(workflow_name: str,
+async def delete_workflow(workflow_name: str,
                     session_token: str = Header(...)) -> None:
     """
     Deletes an existing workflow
@@ -227,6 +233,8 @@ def delete_workflow(workflow_name: str,
         try:
             analytics.unregister_workflow(t, user, workflow_name)
             t.commit()
+
+            await sio.emit("workflow", {})
         except Exception as e:
             t.rollback()
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
@@ -271,7 +279,7 @@ def get_dataset_by_name(dataset_name: str,
     return dataset
 
 @app.post("/api/dataset/{dataset_name}", tags=["analytics :: dataset"])
-def create_dataset(dataset_name: str,
+async def create_dataset(dataset_name: str,
                    dataset: UploadFile = File(...),
                    session_token: str = Header(...)) -> Optional[DatasetDTO]:
 
@@ -297,6 +305,8 @@ def create_dataset(dataset_name: str,
                                        dataset = dataset_dto)
             t.commit()
 
+            await sio.emit("dataset", {})
+
             dataset_dto.data = None
 
             return dataset_dto
@@ -310,7 +320,7 @@ def create_dataset(dataset_name: str,
             dataset.file.close() 
 
 @app.put("/api/dataset/{dataset_name}", tags=["analytics :: dataset"])
-def modify_dataset(dataset_name: str,
+async def modify_dataset(dataset_name: str,
                    dataset: UploadFile = File(...),
                    session_token: str = Header(...)) -> None:
     """
@@ -338,6 +348,8 @@ def modify_dataset(dataset_name: str,
                                                             data      = df.to_dict("list")),
                                        overwrite = True)
             t.commit()
+
+            await sio.emit("dataset", {})
         except Exception as e:
             t.rollback()
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
@@ -348,7 +360,7 @@ def modify_dataset(dataset_name: str,
     return None
 
 @app.delete("/api/dataset/{dataset_name}", tags=["analytics :: dataset"])
-def delete_dataset(dataset_name: str,
+async def delete_dataset(dataset_name: str,
                    session_token: str = Header(...)) -> None:
 
     # Services
@@ -360,6 +372,8 @@ def delete_dataset(dataset_name: str,
         try:
             analytics.unregister_dataset(t, user, dataset_name)
             t.commit()
+
+            await sio.emit("dataset", {})
         except Exception as e:
             t.rollback()
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
@@ -404,12 +418,14 @@ def get_analysis_fields(analysis: AnalysisDTO) -> AnalysisFieldsDTO:
     analytics = runtime.services.analytics
 
     try:
-        return analytics.get_analysis_fields(analysis)
+        requirements = analytics.get_analysis_fields(analysis)
+
+        return requirements
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/api/analysis", tags=["analytics :: analysis"])
-def create_analysis(analysis:      AnalysisDTO,
+async def create_analysis(analysis:      AnalysisDTO,
                     session_token: str = Header(...)) -> None:
     """
     Create a new analysis
@@ -427,6 +443,8 @@ def create_analysis(analysis:      AnalysisDTO,
         try:
             analytics.register_analysis(t, user, analysis)
             t.commit()
+
+            await sio.emit("analysis", {})
         except Exception as e:
             t.rollback()
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
@@ -435,7 +453,7 @@ def create_analysis(analysis:      AnalysisDTO,
     return None
 
 @app.put("/api/analysis/{analysis_name}", tags=["analytics :: analysis"])
-def modify_analysis(analysis_name: str,
+async def modify_analysis(analysis_name: str,
                     analysis:      AnalysisDTO,
                     session_token: str = Header(...)) -> None:
     """
@@ -452,6 +470,8 @@ def modify_analysis(analysis_name: str,
         try:
             analytics.register_analysis(t, user, analysis, analysis_name, overwrite = True)
             t.commit()
+
+            await sio.emit("analysis", {})
         except Exception as e:
             t.rollback()
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
@@ -460,7 +480,7 @@ def modify_analysis(analysis_name: str,
     return None
 
 @app.delete("/api/analysis/{analysis_name}", tags=["analytics :: analysis"])
-def delete_analysis(analysis_name: str,
+async def delete_analysis(analysis_name: str,
                     session_token: str = Header(...)) -> None:
     """
     Deletes an existing analysis
@@ -475,6 +495,8 @@ def delete_analysis(analysis_name: str,
         try:
             analytics.unregister_analysis(t, user, analysis_name)
             t.commit()
+
+            await sio.emit("analysis", {})
         except Exception as e:
             t.rollback()
             raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
@@ -483,9 +505,9 @@ def delete_analysis(analysis_name: str,
     return None
 
 @app.post("/api/analysis/{analysis_name}", tags=["analytics :: analysis"])
-def run_analysis(analysis_name: str,
-                 run_setup:     RunSetupDTO,
-                 session_token: str = Header(...)) -> None:
+async def run_analysis(analysis_name: str,
+                       run_setup:     RunSetupDTO,
+                       session_token: str = Header(...)) -> None:
     """
     Runs an existing analysis
 
@@ -494,22 +516,53 @@ def run_analysis(analysis_name: str,
     # Services
     analytics = runtime.services.analytics
 
-    # Workflows
-    with runtime.transaction as t:
-        user = _get_user(t, session_token)
+    # Runner thread
+    queue = Queue()
+    done  = threading.Event()
+    error = threading.Event()
 
+    def tracker(wid: int, sid: int, name: str) -> None:
+        queue.put_nowait((wid, sid, name))
+
+    def runner():
+        with runtime.transaction as t:
+            user = _get_user(t, session_token)
+
+            try:
+                analytics.run_analysis(t, 
+                                       user          = user, 
+                                       analysis_name = analysis_name,
+                                       dataset_name  = run_setup.dataset_name, 
+                                       mapping       = run_setup.mapping, 
+                                       analysis      = run_setup.analysis,
+                                       tracker       = tracker)
+
+                t.commit()
+                done.set()
+
+            except:
+                t.rollback()
+                error.set()
+
+    thread = threading.Thread(target=runner)
+    thread.start()
+
+    while not done.is_set() and not error.is_set():
         try:
-            analytics.run_analysis(t, 
-                                   user          = user, 
-                                   analysis_name = analysis_name,
-                                   dataset_name  = run_setup.dataset_name, 
-                                   mapping       = run_setup.mapping, 
-                                   analysis      = run_setup.analysis)
-            t.commit()
-        except Exception as e:
-            t.rollback()
-            raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
-                                detail = str(e))
+            (wid, sid, name) = queue.get_nowait()
+            await sio.emit("step", {"workflow_idx": wid,
+                                    "step_idx": sid,
+                                    "step": name})
+        except:
+            pass
+
+    thread.join()
+
+    await sio.emit("result", {})
+    
+    if error.is_set():
+        raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,
+                            detail = "Analysis failed")
 
     return None
 
@@ -556,7 +609,7 @@ def get_result_by_name(run_id: int,
     return result
 
 @app.delete("/api/results/{run_id}", tags=["analytics :: results"])
-def delete_results(run_id: int,
+async def delete_results(run_id: int,
                    session_token: str = Header(...)) -> None:
     """
     Deletes all results of a run
@@ -569,10 +622,12 @@ def delete_results(run_id: int,
         user   = _get_user(t, session_token)
         analytics.unregister_results(t, user, run_id)
 
+    await sio.emit("result", {})
+
     return None
 
 ##################################
-# API: method
+# API: statistics
 ##################################
 
 @app.get("/api/statistics", tags=["statistics"])
@@ -588,3 +643,12 @@ def get_statistics(session_token: str | None = Header(None)) -> StatisticsDTO:
             user = None
 
         return analytics.get_statistics(t, user)
+
+
+##################################
+# WS
+##################################
+
+@sio.event
+async def connect(sid, environ):
+    print(f"Client connected: {sid}")

@@ -34,6 +34,13 @@ methods: {
 mounted: async function(){
   this.workflows = await api_workflows();
   this.methods = await api_methods();
+
+  var that = this;
+  socket.on("workflow", async function(data) {
+    that.workflows = await api_workflows();
+    that.methods = await api_methods();
+  });
+
 },
 
 props: []

@@ -33,6 +33,13 @@ methods: {
 mounted: async function(){
   this.analysis = await api_analysis();
   this.methods = await api_methods();
+
+  var that = this;
+  socket.on("analysis", async function(data) {
+    that.analysis = await api_analysis();
+    that.methods  = await api_methods();
+  });
+
 },
 
 

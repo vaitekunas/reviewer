@@ -7,8 +7,8 @@ from typing import Type, override, Any
 
 from .. import runtime
 
-from ...framework.interface import IConfig, IDataset, IPredictor
-from ...framework.aliases import AnalysisField, FieldSchema
+from reviewer.framework.interface import IConfig, IDataset, IPredictor
+from reviewer.framework.aliases import AnalysisField, FieldSchema
 
 
 @dataclass
