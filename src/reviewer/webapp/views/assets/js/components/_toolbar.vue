@@ -4,6 +4,7 @@
   <div class="toolbar">
 
     <div class="toolbar-title">
+        <icon class="toolbar-icon" :icon="toolbar_icon"></icon>
         {{toolbar_title}}
     </div>
 
@@ -48,5 +49,5 @@ mounted: async function(){
 },
 
 
-props: ["toolbar_title", "logged_in"]
+props: ["toolbar_title", "toolbar_icon", "logged_in"]
 </javascript>

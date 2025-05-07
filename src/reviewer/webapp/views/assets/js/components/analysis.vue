@@ -26,6 +26,7 @@
 
     <add-button v-if="!inactive"
                 title="+ workflow" 
+                fulltitle="Choose a workflow"
                 :choices="existing_workflows"
                 :allow_empty="true"
                 :from_config="true"

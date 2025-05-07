@@ -46,6 +46,7 @@
 
       <add-button v-if="!inactive"
                   title="+ step" 
+                  fulltitle="Choose a method"
                   :choices="methods"
                   :allow_empty="false"
                   :group_choices="true"

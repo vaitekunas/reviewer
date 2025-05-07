@@ -110,6 +110,10 @@ option {
   color: var(--color-primary);
 }
 
+select {
+  width: max-content !important;
+}
+
 .search {
  width: 100%;
 }
@@ -362,11 +366,23 @@ table.wrappable td, table.wrappable th {
 }
 
 .toolbar-title {
+  display: flex;
   font-size: var(--toolbar-title-size);
   color: var(--color-text);
-  margin-left: var(--sidebar-minwidth);
   min-width: fit-content;
   font-family: "Comfortaa", "sans-serif";
+  align-items: center;
+}
+
+.toolbar-icon {
+  color: var(--color-light-shades);
+  background: var(--color-danger);
+  width: var(--toolbar-title-size);
+  height: var(--toolbar-title-size);
+  padding: 1rem;
+  border-radius: 50% 10% 50% 10%;
+  margin-left: calc(var(--sidebar-minwidth) / 2);
+  margin-right: 0.5rem;
 }
 
 .method-title {
@@ -1346,6 +1362,10 @@ table.wrappable td, table.wrappable th {
   margin-bottom: 0.5rem;
 }
 
+.result-link.open {
+  background: var(--color-danger);
+}
+
 
 .result-figure {
   width: 350px;
@@ -1371,3 +1391,14 @@ table.wrappable td, table.wrappable th {
 .running-shield.active {
   display: block;
 }
+
+.button-row {
+  margin-top: 0.25rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.selector-title {
+  margin-bottom: 0.25rem;
+}
+

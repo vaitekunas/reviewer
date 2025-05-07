@@ -7,6 +7,7 @@
       {{title}}
     </div>
     <div v-else>
+      <div class="selector-title">{{fulltitle}}</div>
 
       <select v-if="has_choices && !from_config && !group_choices" v-model="choice"> 
         <option v-for="c in choices" :value="c">{{c}}</option>
@@ -22,10 +23,10 @@
         </optgroup>
       </select>
       
-      <div>
+      <div class="button-row">
         <button class="danger" v-on:click="reset">Cancel</button>
-        <button v-if="choice" class="success" v-on:click="choose">Add</button>
         <button v-if="allow_empty" class="success" v-on:click="choose_empty">Add empty</button>
+        <button v-if="choice"      class="alternative" v-on:click="choose">Add</button>
       </div>
 
     </div>
@@ -72,5 +73,5 @@ methods: {
 
 },
 
-props: ["title", "allow_empty", "from_config", "group_choices", "choices", "callback_id"]
+props: ["fulltitle", "title", "allow_empty", "from_config", "group_choices", "choices", "callback_id"]
 </javascript>

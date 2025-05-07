@@ -5,6 +5,7 @@
     <div class="screen">
 
       <tool-bar :toolbar_title="toolbar_title"
+                :toolbar_icon="toolbar_icon"
                 :logged_in="logged_in"
                 v-on:login="refresh_data"
                 v-on:logout="refresh_data">
@@ -34,6 +35,7 @@ data: function(){
   return {
     state:         global_data.state,
     toolbar_title: "Review Analytics",
+    toolbar_icon:  "dashboard",
     loading:       false,
     logged_in:     false
   }
@@ -63,8 +65,9 @@ methods: {
     }
   },
 
-  select_page: async function(page_title){
-    this.toolbar_title = page_title;
+  select_page: async function(event){
+    this.toolbar_title = event.page_title;
+    this.toolbar_icon  = event.page_icon;
   },
 
 },

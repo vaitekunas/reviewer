@@ -73,7 +73,7 @@ computed: {
 methods: {
 
   is_short: function(val){
-    return val == null || String(val).trim().length < 20;
+    return val == null || String(val).trim().length < 30;
   },
 
   hide_config: function(event){

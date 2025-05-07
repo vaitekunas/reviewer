@@ -2,7 +2,7 @@
 
 <template>
   <div class="result-wrapper" v-on:click="toggle_show_result">
-      <div class="result-link">
+      <div class="result-link" :class="{open: show_result}">
         <icon class="result-icon" :icon="icon"></icon>
         <div>{{result.result_name}}</div>
       </div>
