@@ -44,6 +44,7 @@ class Runtime:
         self._services    = None
         self._workdir     = WORK_DIR
         self._session_ttl = session_ttl
+        self._llm_host    = "localhost:11434"
 
         self._logger_parent = logging.getLogger()
         self._logger = self._logger_parent.getChild("runtime")

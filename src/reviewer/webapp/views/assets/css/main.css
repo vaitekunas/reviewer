@@ -114,6 +114,10 @@ select {
   width: max-content !important;
 }
 
+.dataset-chooser select {
+  width: 100% !important;
+}
+
 .search {
  width: 100%;
 }

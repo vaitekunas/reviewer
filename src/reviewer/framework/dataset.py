@@ -59,10 +59,10 @@ class Dataset(IDataset):
 
         self._df = self._df.query(sql_rule).reset_index(drop=True)
 
-        if self._train_idx:
+        if len(self._train_idx):
             self._train_idx = [x for x in self._train_idx if x in self._df.index]
 
-        if self._test_idx:
+        if len(self._test_idx):
             self._test_idx  = [x for x in self._test_idx if x in self._df.index]
 
         return self
